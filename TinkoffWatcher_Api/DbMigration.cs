@@ -19,7 +19,7 @@ namespace TinkoffWatcher_Api
             {
                 var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
                 context.Database.Migrate();
-                DbMigration.ConfigureIdentity(scope).GetAwaiter().GetResult();
+                ConfigureIdentity(scope).GetAwaiter().GetResult();
             }
 
             return webHost;

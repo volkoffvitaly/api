@@ -8,7 +8,7 @@ namespace TinkoffWatcher_Api
 	{
 		public static void Main(string[] args)
 		{
-			Program.BuildWebHost(args).MigrateDatabase().Run();
+            BuildWebHost(args).MigrateDatabase().Run();
 		}
 
 		public static IWebHost BuildWebHost(string[] args) =>
