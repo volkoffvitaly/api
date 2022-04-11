@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinkoffWatcher_Api", "TinkoffWatcher_Api.csproj", "{94580EBD-4A5D-48E4-8FFE-804287D9DD3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94580EBD-4A5D-48E4-8FFE-804287D9DD3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94580EBD-4A5D-48E4-8FFE-804287D9DD3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94580EBD-4A5D-48E4-8FFE-804287D9DD3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94580EBD-4A5D-48E4-8FFE-804287D9DD3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2470F558-B482-4166-A2D7-275563F42C43}
+	EndGlobalSection
+EndGlobal
