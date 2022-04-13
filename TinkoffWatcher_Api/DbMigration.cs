@@ -54,6 +54,53 @@ namespace TinkoffWatcher_Api
                 usersRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);
             }
 
+            var curatorsRole = await roleManager.FindByNameAsync(ApplicationRoles.Curator);
+            if (curatorsRole == null)
+            {
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Curator));
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.Curator} role.");
+                }
+
+                curatorsRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);
+            }
+
+            var studentsRole = await roleManager.FindByNameAsync(ApplicationRoles.Student);
+            if (studentsRole == null)
+            {
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Student));
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.Student} role.");
+                }
+
+                studentsRole = await roleManager.FindByNameAsync(ApplicationRoles.Student);
+            }
+
+            var representativeCompanyRole = await roleManager.FindByNameAsync(ApplicationRoles.RepresentativeCompany);
+            if (representativeCompanyRole == null)
+            {
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.RepresentativeCompany));
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.RepresentativeCompany} role.");
+                }
+
+                representativeCompanyRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);
+            }
+
+            var representativeSchoolRole = await roleManager.FindByNameAsync(ApplicationRoles.RepresentativeSchool);
+            if (representativeSchoolRole == null)
+            {
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.RepresentativeSchool));
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.RepresentativeSchool} role.");
+                }
+
+                representativeSchoolRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);
+            }
 
             var adminUser = await userManager.FindByNameAsync("admin@localhost.local");
             if (adminUser == null)
