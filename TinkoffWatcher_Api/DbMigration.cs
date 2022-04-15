@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Models;
 
@@ -78,25 +76,25 @@ namespace TinkoffWatcher_Api
                 studentsRole = await roleManager.FindByNameAsync(ApplicationRoles.Student);
             }
 
-            var representativeCompanyRole = await roleManager.FindByNameAsync(ApplicationRoles.RepresentativeCompany);
+            var representativeCompanyRole = await roleManager.FindByNameAsync(ApplicationRoles.CompanyAgent);
             if (representativeCompanyRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.RepresentativeCompany));
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.CompanyAgent));
                 if (!roleResult.Succeeded)
                 {
-                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.RepresentativeCompany} role.");
+                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.CompanyAgent} role.");
                 }
 
                 representativeCompanyRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);
             }
 
-            var representativeSchoolRole = await roleManager.FindByNameAsync(ApplicationRoles.RepresentativeSchool);
+            var representativeSchoolRole = await roleManager.FindByNameAsync(ApplicationRoles.SchoolAgent);
             if (representativeSchoolRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.RepresentativeSchool));
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.SchoolAgent));
                 if (!roleResult.Succeeded)
                 {
-                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.RepresentativeSchool} role.");
+                    throw new InvalidOperationException($"Unable to create {ApplicationRoles.SchoolAgent} role.");
                 }
 
                 representativeSchoolRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);

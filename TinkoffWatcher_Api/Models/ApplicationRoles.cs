@@ -1,19 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace TinkoffWatcher_Api.Models
+﻿namespace TinkoffWatcher_Api.Models
 {
-	public static class ApplicationRoles
-	{
-		public const String Administrators = nameof(ApplicationRoles.Administrators);
-		public const String Users = nameof(ApplicationRoles.Users);
-		public const String Student = nameof(ApplicationRoles.Student);
-		public const String Curator = nameof(ApplicationRoles.Curator);
-		public const String RepresentativeCompany = nameof(ApplicationRoles.RepresentativeCompany);
-		public const String RepresentativeSchool = nameof(ApplicationRoles.RepresentativeSchool);
-
-	}
+    public static class ApplicationRoles
+    {
+        public const string Administrators = nameof(Administrators);
+        public const string Users = nameof(Users);
+        public const string Student = nameof(Student);
+        public const string Curator = nameof(Curator);
+        public const string CompanyAgent = nameof(CompanyAgent);
+        public const string SchoolAgent = nameof(SchoolAgent);
+    }
 }
