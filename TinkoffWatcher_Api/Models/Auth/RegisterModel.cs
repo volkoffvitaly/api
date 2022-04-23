@@ -31,11 +31,22 @@ namespace TinkoffWatcher_Api.Models.Auth
         [Compare(nameof(Password), ErrorMessage = "Пароли не совпадают")]
         public string ConfirmPassword { get; set; }
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Поле \"ФИО\" обязательно для заполнения")]
-        [StringLength(256, ErrorMessage = "Длина ФИО должна быть не менее {2} и не более {1} символов", MinimumLength = 1)]
-        [RegularExpression("[А-ЯЁа-яё -]+", ErrorMessage = "ФИО может содержать только русские буквы, дефис (-) и пробелы")]
-        [Display(Name = "ФИО")]
-        public string FCs { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Поле \"Фамилия\" обязательно для заполнения")]
+        [StringLength(256, ErrorMessage = "Длина фамилии должна быть не менее {2} и не более {1} символов", MinimumLength = 1)]
+        [RegularExpression("[А-ЯЁа-яё-]+", ErrorMessage = "Фамилия может содержать только русские буквы и дефис (-)")]
+        [Display(Name = "Фамилия")]
+        public string LastName { get; set; }
+
+        [StringLength(256, ErrorMessage = "Длина отчества должна быть не менее {2} и не более {1} символов", MinimumLength = 1)]
+        [RegularExpression("[А-ЯЁа-яё-]+", ErrorMessage = "Отчество может содержать только русские буквы и дефис (-)")]
+        [Display(Name = "Отчество")]
+        public string MiddleName { get; set; }
+
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Поле \"Имя\" обязательно для заполнения")]
+        [StringLength(256, ErrorMessage = "Длина имени должна быть не менее {2} и не более {1} символов", MinimumLength = 1)]
+        [RegularExpression("[А-ЯЁа-яё-]+", ErrorMessage = "Имя может содержать только русские буквы и дефис (-)")]
+        [Display(Name = "Имя")]
+        public string FirstName { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Name = "Дата рождения")]

@@ -82,7 +82,9 @@ namespace TinkoffWatcher_Api.Controllers
             model.Email = model.Email?.Trim();
             model.Password = model.Password?.Trim();
             model.ConfirmPassword = model.ConfirmPassword?.Trim();
-            model.FCs = model.FCs?.Trim();
+            model.FirstName = model.FirstName?.Trim();
+            model.MiddleName = model.MiddleName?.Trim();
+            model.LastName = model.LastName?.Trim();
 
             var userWithSameCredentials = await _userManager.Users.FirstOrDefaultAsync(y => y.Email == model.Email);
 
@@ -93,7 +95,9 @@ namespace TinkoffWatcher_Api.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email,
-                FirstName = model.FCs, // Мне не нравится ФИО одним полем во фронте, потенциально может доставить неудобства
+                FirstName = model.FirstName,
+                MiddleName = model.MiddleName,
+                LastName = model.LastName,
                 BirthDate = model.DateOfBirth,
                 Gender = model.Gender,
             };
