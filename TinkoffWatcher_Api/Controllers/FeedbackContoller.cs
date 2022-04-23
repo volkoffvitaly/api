@@ -1,22 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
-using TinkoffWatcher_Api.Dto.Interview;
+using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
 {
     [Route("Api/[controller]")]
     [ApiController]
-    public class InterviewController : Controller
+    public class FeedbackContoller : Controller
     {
         private readonly ApplicationDbContext _context;
-        public InterviewController(ApplicationDbContext context)
+        public FeedbackContoller(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -25,46 +24,38 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var interviewEntity = await _context.Interviews
-                .Include(_ => _.Student)
-                .Include(_ => _.Feedbacks)
-                .Include(_ => _.Agents)
+            var feedbackEntity = await _context.Feedbacks
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (interviewEntity == null)
+            if (feedbackEntity == null)
                 return NotFound();
 
-            var vacancyDto = new InterviewDto()
+            var feedbackDto = new FeedbackDto()
             {
-                Id = interviewEntity.Id,
-                CreatedDate = interviewEntity.CreatedDate,
-                AdditionalInfo = interviewEntity.AdditionalInfo,
-                Date = interviewEntity.Date,
-                Student = interviewEntity.Student,
-                Agents = interviewEntity.Agents
+                Id = feedbackEntity.Id,
+                CreatedDate = feedbackEntity.CreatedDate,
             };
 
-            return Ok(vacancyDto);
+            return Ok(feedbackDto);
         }
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromBody] InterviewCreateEditDto model)
+        public async Task<IActionResult> Create([FromBody] FeedbackCreateEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var interviewEntity = new Interview()
+                var feedbackEntity = new Feedback()
                 {
-                    Date = model.Date,
+                    Text = model.Text,
+                    Verdict = model.Verdict,
                     CreatedDate = DateTime.UtcNow,
-                    StudentId = model.StudentId,
-                    VacancyId = model.VacancyId
                 };
 
-                _context.Add(interviewEntity);
+                _context.Add(feedbackEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -77,23 +68,23 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] InterviewCreateEditDto model)
+        public async Task<IActionResult> Put(Guid id, [FromBody] FeedbackCreateEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var interviewEntity = await _context.Interviews.FirstOrDefaultAsync(x => x.Id == id);
+            var feedbackEntity = await _context.Feedbacks.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (interviewEntity == null)
+            if (feedbackEntity == null)
                 return NotFound();
 
             try
             {
-                interviewEntity.Date = interviewEntity.Date;
-                interviewEntity.AdditionalInfo = interviewEntity.AdditionalInfo;
-                interviewEntity.EditedDate = DateTime.UtcNow;
+                feedbackEntity.Text = model.Text;
+                feedbackEntity.Verdict = model.Verdict;
+                feedbackEntity.EditedDate = DateTime.UtcNow;
 
-                _context.Update(interviewEntity);
+                _context.Update(feedbackEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -108,14 +99,14 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var interviewEntity = await _context.Interviews.FirstOrDefaultAsync(x => x.Id == id);
+            var feedbackEntity = await _context.Feedbacks.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (interviewEntity == null)
+            if (feedbackEntity == null)
                 return NotFound();
 
             try
             {
-                _context.Remove(interviewEntity);
+                _context.Remove(feedbackEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
