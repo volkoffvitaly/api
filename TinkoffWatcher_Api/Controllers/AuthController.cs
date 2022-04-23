@@ -84,7 +84,7 @@ namespace TinkoffWatcher_Api.Controllers
             model.ConfirmPassword = model.ConfirmPassword?.Trim();
             model.FCs = model.FCs?.Trim();
 
-            var userWithSameCredentials = _userManager.Users.FirstOrDefaultAsync(y => y.Email == model.Email);
+            var userWithSameCredentials = await _userManager.Users.FirstOrDefaultAsync(y => y.Email == model.Email);
 
             if (userWithSameCredentials != default)
                 return BadRequest("Пользователь с такой электронной почтой уже существует");
@@ -119,15 +119,14 @@ namespace TinkoffWatcher_Api.Controllers
                 _context.RefreshTokens.Add(newRefresh);
                 await _context.SaveChangesAsync();
 
-                return Ok();
-                //return Json(new // чет не работает
-                //{
-                //    UserName = user.UserName,
-                //    UserId = user.Id,
-                //    AccessToken = jwt.Token,
-                //    RefreshToken = refreshToken,
-                //    Expiration = jwt.Expiration
-                //});
+                return Ok(new
+                {
+                    UserName = user.UserName,
+                    UserId = user.Id,
+                    AccessToken = jwt.Token,
+                    RefreshToken = refreshToken,
+                    Expiration = jwt.Expiration
+                });
             }
             else
             {
