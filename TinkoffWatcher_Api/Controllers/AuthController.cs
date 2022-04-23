@@ -84,7 +84,7 @@ namespace TinkoffWatcher_Api.Controllers
             model.ConfirmPassword = model.ConfirmPassword?.Trim();
             model.FCs = model.FCs?.Trim();
 
-            var userWithSameCredentials = _userManager.Users.FirstOrDefaultAsync(y => y.Email != model.Email);
+            var userWithSameCredentials = _userManager.Users.FirstOrDefaultAsync(y => y.Email == model.Email);
 
             if (userWithSameCredentials != default)
                 return BadRequest("Пользователь с такой электронной почтой уже существует");
