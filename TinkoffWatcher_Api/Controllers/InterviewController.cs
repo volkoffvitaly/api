@@ -22,6 +22,34 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var interviewEntities = await _context.Interviews
+                .Include(_ => _.Student)
+                .Include(_ => _.Feedbacks)
+                .Include(_ => _.Agents)
+                .ToListAsync();
+            var interviewDtos = new List<InterviewDto>();
+
+            foreach (var interviewEntity in interviewEntities)
+            {
+                var interviewDto = new InterviewDto()
+                {
+                    Id = interviewEntity.Id,
+                    CreatedDate = interviewEntity.CreatedDate,
+                    AdditionalInfo = interviewEntity.AdditionalInfo,
+                    Date = interviewEntity.Date,
+                    Student = interviewEntity.Student,
+                    Agents = interviewEntity.Agents,
+                    Feedbacks = interviewEntity.Feedbacks,
+                };
+                interviewDtos.Add(interviewDto);
+            }
+
+            return Ok(interviewDtos);
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {

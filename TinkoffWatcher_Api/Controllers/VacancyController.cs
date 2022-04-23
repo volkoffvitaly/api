@@ -22,6 +22,27 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var vacancyEntities = await _context.Vacancies.ToListAsync();
+            var vacancyDtos = new List<VacancyDto>();
+
+            foreach (var vacancyEntity in vacancyEntities)
+            {
+                var vacancyDto = new VacancyDto()
+                {
+                    Id = vacancyEntity.Id,
+                    Name = vacancyEntity.Name,
+                    Description = vacancyEntity.Description,
+                    CreatedDate = vacancyEntity.CreatedDate
+                };
+                vacancyDtos.Add(vacancyDto);
+            }
+
+            return Ok(vacancyDtos);
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {

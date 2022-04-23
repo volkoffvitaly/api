@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Company;
@@ -16,6 +17,27 @@ namespace TinkoffWatcher_Api.Controllers
         public CompanyController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var companyEntities = await _context.Companies.ToListAsync();
+            var companyDtos = new List<CompanyDto>();
+
+            foreach (var companyEntity in companyEntities) {
+                var companyDto = new CompanyDto()
+                {
+                    Id = companyEntity.Id,
+                    Name = companyEntity.Name,
+                    Description = companyEntity.Description,
+                    CreatedDate = companyEntity.CreatedDate,
+                    EditedDate = companyEntity.EditedDate,
+                };
+                companyDtos.Add(companyDto);
+            }
+
+            return Ok(companyDtos);
         }
 
         [HttpGet]

@@ -21,6 +21,25 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var feedbackEntities = await _context.Feedbacks.ToListAsync();
+            var feedbackDtos = new List<FeedbackDto>();
+
+            foreach (var feedbackEntity in feedbackEntities)
+            {
+                var feedbackDto = new FeedbackDto()
+                {
+                    Id = feedbackEntity.Id,
+                    CreatedDate = feedbackEntity.CreatedDate,
+                };
+                feedbackDtos.Add(feedbackDto);
+            }
+
+            return Ok(feedbackDtos);
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {

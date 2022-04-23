@@ -70,12 +70,12 @@ namespace TinkoffWatcher_Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Internship_Api v1"));
-            }
+            //}
 
             app.UseHttpsRedirection();
 
