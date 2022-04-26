@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,28 +17,18 @@ namespace TinkoffWatcher_Api.Controllers
     public class VacancyController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public VacancyController(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public VacancyController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var vacancyEntities = await _context.Vacancies.ToListAsync();
-            var vacancyDtos = new List<VacancyDto>();
-
-            foreach (var vacancyEntity in vacancyEntities)
-            {
-                var vacancyDto = new VacancyDto()
-                {
-                    Id = vacancyEntity.Id,
-                    Name = vacancyEntity.Name,
-                    Description = vacancyEntity.Description,
-                    CreatedDate = vacancyEntity.CreatedDate
-                };
-                vacancyDtos.Add(vacancyDto);
-            }
+            var vacancyEntities = _context.Companies;
+            var vacancyDtos = _mapper.ProjectTo<VacancyDto>(vacancyEntities);
 
             return Ok(vacancyDtos);
         }
@@ -51,34 +42,22 @@ namespace TinkoffWatcher_Api.Controllers
             if (vacancyEntity == null)
                 return NotFound();
 
-            var vacancyDto = new VacancyDto()
-            {
-                Id = vacancyEntity.Id,
-                Name = vacancyEntity.Name,
-                Description = vacancyEntity.Description,
-                CreatedDate = vacancyEntity.CreatedDate
-            };
+            var vacancyDto = _mapper.Map<VacancyDto>(vacancyEntity);
 
             return Ok(vacancyDto);
         }
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromBody] VacancyCreateEditDto model)
+        public async Task<IActionResult> Create([FromBody] VacancyEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var vacancyEntity = new Vacancy()
-                {
-                    Name = model.Name,
-                    Description = model.Description,
-                    CreatedDate = DateTime.UtcNow,
-                    PositionAmount = model.PositionAmount,
-                    CompanyId = model.CompanyId
-                };
+                var vacancyEntity = _mapper.Map<Vacancy>(model);
+                vacancyEntity.CreatedDate = DateTime.UtcNow;
 
                 _context.Add(vacancyEntity);
                 await _context.SaveChangesAsync();
@@ -93,7 +72,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] VacancyCreateEditDto model)
+        public async Task<IActionResult> Put(Guid id, [FromBody] VacancyEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -105,8 +84,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                vacancyEntity.Name = model.Name;
-                vacancyEntity.Description = model.Description;
+                vacancyEntity = _mapper.Map(model, vacancyEntity);
                 vacancyEntity.EditedDate = DateTime.UtcNow;
 
                 _context.Update(vacancyEntity);

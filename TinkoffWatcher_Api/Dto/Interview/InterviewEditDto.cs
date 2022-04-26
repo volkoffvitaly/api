@@ -7,7 +7,7 @@ using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Dto.Interview
 {
-    public class InterviewCreateEditDto 
+    public class InterviewEditDto 
     {
         public DateTime Date { get; set; }
         [MaxLength(255)]

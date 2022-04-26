@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Company;
@@ -14,28 +16,18 @@ namespace TinkoffWatcher_Api.Controllers
     public class CompanyController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public CompanyController(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public CompanyController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var companyEntities = await _context.Companies.ToListAsync();
-            var companyDtos = new List<CompanyDto>();
-
-            foreach (var companyEntity in companyEntities) {
-                var companyDto = new CompanyDto()
-                {
-                    Id = companyEntity.Id,
-                    Name = companyEntity.Name,
-                    Description = companyEntity.Description,
-                    CreatedDate = companyEntity.CreatedDate,
-                    EditedDate = companyEntity.EditedDate,
-                };
-                companyDtos.Add(companyDto);
-            }
+            var companyEntities = _context.Companies;
+            var companyDtos = _mapper.ProjectTo<CompanyDto>(companyEntities);
 
             return Ok(companyDtos);
         }
@@ -49,14 +41,7 @@ namespace TinkoffWatcher_Api.Controllers
             if (companyEntity == null)
                 return NotFound();
 
-            var companyDto = new CompanyDto()
-            {
-                Id = companyEntity.Id,
-                Name = companyEntity.Name,
-                Description = companyEntity.Description,
-                CreatedDate = companyEntity.CreatedDate,
-                EditedDate = companyEntity.EditedDate,
-            };
+            var companyDto = _mapper.Map<CompanyDto>(companyEntity);
 
             return Ok(companyDto);
         }
@@ -69,12 +54,8 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                var companyEntity = new Company()
-                {
-                    Name = companyDto.Name,
-                    Description = companyDto.Description,
-                    CreatedDate = DateTime.UtcNow,
-                };
+                var companyEntity = _mapper.Map<Company>(companyDto);
+                companyEntity.CreatedDate = DateTime.UtcNow;
 
                 _context.Add(companyEntity);
                 await _context.SaveChangesAsync();
@@ -101,8 +82,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                companyEntity.Name = companyDto.Name;
-                companyEntity.Description = companyDto.Description;
+                companyEntity = _mapper.Map(companyDto, companyEntity);
                 companyEntity.EditedDate = DateTime.UtcNow;
 
                 _context.Update(companyEntity);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,26 +16,18 @@ namespace TinkoffWatcher_Api.Controllers
     public class FeedbackContoller : Controller
     {
         private readonly ApplicationDbContext _context;
-        public FeedbackContoller(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public FeedbackContoller(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var feedbackEntities = await _context.Feedbacks.ToListAsync();
-            var feedbackDtos = new List<FeedbackDto>();
-
-            foreach (var feedbackEntity in feedbackEntities)
-            {
-                var feedbackDto = new FeedbackDto()
-                {
-                    Id = feedbackEntity.Id,
-                    CreatedDate = feedbackEntity.CreatedDate,
-                };
-                feedbackDtos.Add(feedbackDto);
-            }
+            var feedbackEntities = _context.Companies;
+            var feedbackDtos = _mapper.ProjectTo<FeedbackDto>(feedbackEntities);
 
             return Ok(feedbackDtos);
         }
@@ -49,30 +42,22 @@ namespace TinkoffWatcher_Api.Controllers
             if (feedbackEntity == null)
                 return NotFound();
 
-            var feedbackDto = new FeedbackDto()
-            {
-                Id = feedbackEntity.Id,
-                CreatedDate = feedbackEntity.CreatedDate,
-            };
+            var feedbackDto = _mapper.Map<FeedbackDto>(feedbackEntity);
 
             return Ok(feedbackDto);
         }
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromBody] FeedbackCreateEditDto model)
+        public async Task<IActionResult> Create([FromBody] FeedbackEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var feedbackEntity = new Feedback()
-                {
-                    Text = model.Text,
-                    Verdict = model.Verdict,
-                    CreatedDate = DateTime.UtcNow,
-                };
+                var feedbackEntity = _mapper.Map<Feedback>(model);
+                feedbackEntity.CreatedDate = DateTime.UtcNow;
 
                 _context.Add(feedbackEntity);
                 await _context.SaveChangesAsync();
@@ -87,7 +72,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] FeedbackCreateEditDto model)
+        public async Task<IActionResult> Put(Guid id, [FromBody] FeedbackEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -99,8 +84,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                feedbackEntity.Text = model.Text;
-                feedbackEntity.Verdict = model.Verdict;
+                feedbackEntity = _mapper.Map(model, feedbackEntity);
                 feedbackEntity.EditedDate = DateTime.UtcNow;
 
                 _context.Update(feedbackEntity);

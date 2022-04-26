@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TinkoffWatcher_Api.Dto.Vacancy
 {
-    public class VacancyCreateEditDto
+    public class VacancyEditDto
     {
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }

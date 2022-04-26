@@ -6,7 +6,7 @@ using TinkoffWatcher_Api.Enums;
 
 namespace TinkoffWatcher_Api.Dto.Feedback
 {
-    public class FeedbackCreateEditDto
+    public class FeedbackEditDto
     {
         public string Text { get; set; }
         public VerdictEnum Verdict { get; set; }

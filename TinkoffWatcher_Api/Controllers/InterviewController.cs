@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,35 +17,21 @@ namespace TinkoffWatcher_Api.Controllers
     public class InterviewController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public InterviewController(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public InterviewController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var interviewEntities = await _context.Interviews
+            var interviewEntities = _context.Interviews
                 .Include(_ => _.Student)
                 .Include(_ => _.Feedbacks)
-                .Include(_ => _.Agents)
-                .ToListAsync();
-            var interviewDtos = new List<InterviewDto>();
-
-            foreach (var interviewEntity in interviewEntities)
-            {
-                var interviewDto = new InterviewDto()
-                {
-                    Id = interviewEntity.Id,
-                    CreatedDate = interviewEntity.CreatedDate,
-                    AdditionalInfo = interviewEntity.AdditionalInfo,
-                    Date = interviewEntity.Date,
-                    Student = interviewEntity.Student,
-                    Agents = interviewEntity.Agents,
-                    Feedbacks = interviewEntity.Feedbacks,
-                };
-                interviewDtos.Add(interviewDto);
-            }
+                .Include(_ => _.Agents);
+            var interviewDtos = _mapper.ProjectTo<InterviewDto>(interviewEntities);
 
             return Ok(interviewDtos);
         }
@@ -62,35 +49,22 @@ namespace TinkoffWatcher_Api.Controllers
             if (interviewEntity == null)
                 return NotFound();
 
-            var vacancyDto = new InterviewDto()
-            {
-                Id = interviewEntity.Id,
-                CreatedDate = interviewEntity.CreatedDate,
-                AdditionalInfo = interviewEntity.AdditionalInfo,
-                Date = interviewEntity.Date,
-                Student = interviewEntity.Student,
-                Agents = interviewEntity.Agents
-            };
+            var interviewDto = _mapper.Map<InterviewDto>(interviewEntity);
 
-            return Ok(vacancyDto);
+            return Ok(interviewDto);
         }
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromBody] InterviewCreateEditDto model)
+        public async Task<IActionResult> Create([FromBody] InterviewEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var interviewEntity = new Interview()
-                {
-                    Date = model.Date,
-                    CreatedDate = DateTime.UtcNow,
-                    StudentId = model.StudentId,
-                    VacancyId = model.VacancyId
-                };
+                var interviewEntity = _mapper.Map<Interview>(model);
+                interviewEntity.CreatedDate = DateTime.UtcNow;
 
                 _context.Add(interviewEntity);
                 await _context.SaveChangesAsync();
@@ -105,7 +79,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] InterviewCreateEditDto model)
+        public async Task<IActionResult> Put(Guid id, [FromBody] InterviewEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -117,8 +91,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                interviewEntity.Date = interviewEntity.Date;
-                interviewEntity.AdditionalInfo = interviewEntity.AdditionalInfo;
+                interviewEntity = _mapper.Map(model, interviewEntity);
                 interviewEntity.EditedDate = DateTime.UtcNow;
 
                 _context.Update(interviewEntity);
