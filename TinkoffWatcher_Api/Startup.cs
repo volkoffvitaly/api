@@ -26,6 +26,22 @@ namespace TinkoffWatcher_Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy
+                (
+                    policy =>
+                    {
+                        policy.WithOrigins
+                        (
+                            "https://intern-track.vercel.app/",
+                            "http://localhost:3000"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    }
+                );
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -35,14 +51,14 @@ namespace TinkoffWatcher_Api
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.Password.RequireNonAlphanumeric = false;
             })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddErrorDescriber<RussianIdentityErrorDescriber>()
-                .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddErrorDescriber<RussianIdentityErrorDescriber>()
+            .AddDefaultTokenProviders();
 
             services.AddAutoMapper(typeof(MapperProfile));
 
@@ -71,14 +87,16 @@ namespace TinkoffWatcher_Api
         {
             //if (env.IsDevelopment())
             //{
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Internship_Api v1"));
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Internship_Api v1"));
             //}
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthentication();
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Company;
+using TinkoffWatcher_Api.Dto.Interview;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Dto.Vacancy;
 using TinkoffWatcher_Api.Models.Entities;
@@ -154,7 +155,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> CreateEmployee(Guid id, [FromBody] EmployeeEditDto employeeEditDto)
         {
             var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
-            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == employeeEditDto.UserId.ToString());
+            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == employeeEditDto.UserId);
 
             if (companyEntity == null || userEntity == null)
                 return NotFound();
@@ -180,7 +181,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> DeleteEmployee(Guid id, Guid userId)
         {
             var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
-            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId.ToString());
+            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
             if (companyEntity == null || userEntity == null || !companyEntity.Employees.Any(x => x.Id == userEntity.Id))
                 return NotFound();

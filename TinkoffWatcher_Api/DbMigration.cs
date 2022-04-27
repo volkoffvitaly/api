@@ -25,13 +25,13 @@ namespace TinkoffWatcher_Api
 
         private static async Task ConfigureIdentity(IServiceScope scope)
         {
-            var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+            var roleManager = scope.ServiceProvider.GetService<RoleManager<ApplicationRole>>();
             var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
 
             var adminsRole = await roleManager.FindByNameAsync(ApplicationRoles.Administrators);
             if (adminsRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Administrators));
+                var roleResult = await roleManager.CreateAsync(new ApplicationRole(ApplicationRoles.Administrators));
                 if (!roleResult.Succeeded)
                 {
                     throw new InvalidOperationException($"Unable to create {ApplicationRoles.Administrators} role.");
@@ -43,7 +43,7 @@ namespace TinkoffWatcher_Api
             var usersRole = await roleManager.FindByNameAsync(ApplicationRoles.Users);
             if (usersRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Users));
+                var roleResult = await roleManager.CreateAsync(new ApplicationRole(ApplicationRoles.Users));
                 if (!roleResult.Succeeded)
                 {
                     throw new InvalidOperationException($"Unable to create {ApplicationRoles.Users} role.");
@@ -55,7 +55,7 @@ namespace TinkoffWatcher_Api
             var curatorsRole = await roleManager.FindByNameAsync(ApplicationRoles.Curator);
             if (curatorsRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Curator));
+                var roleResult = await roleManager.CreateAsync(new ApplicationRole(ApplicationRoles.Curator));
                 if (!roleResult.Succeeded)
                 {
                     throw new InvalidOperationException($"Unable to create {ApplicationRoles.Curator} role.");
@@ -67,7 +67,7 @@ namespace TinkoffWatcher_Api
             var studentsRole = await roleManager.FindByNameAsync(ApplicationRoles.Student);
             if (studentsRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Student));
+                var roleResult = await roleManager.CreateAsync(new ApplicationRole(ApplicationRoles.Student));
                 if (!roleResult.Succeeded)
                 {
                     throw new InvalidOperationException($"Unable to create {ApplicationRoles.Student} role.");
@@ -79,7 +79,7 @@ namespace TinkoffWatcher_Api
             var representativeCompanyRole = await roleManager.FindByNameAsync(ApplicationRoles.CompanyAgent);
             if (representativeCompanyRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.CompanyAgent));
+                var roleResult = await roleManager.CreateAsync(new ApplicationRole(ApplicationRoles.CompanyAgent));
                 if (!roleResult.Succeeded)
                 {
                     throw new InvalidOperationException($"Unable to create {ApplicationRoles.CompanyAgent} role.");
@@ -91,7 +91,7 @@ namespace TinkoffWatcher_Api
             var representativeSchoolRole = await roleManager.FindByNameAsync(ApplicationRoles.SchoolAgent);
             if (representativeSchoolRole == null)
             {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.SchoolAgent));
+                var roleResult = await roleManager.CreateAsync(new ApplicationRole(ApplicationRoles.SchoolAgent));
                 if (!roleResult.Succeeded)
                 {
                     throw new InvalidOperationException($"Unable to create {ApplicationRoles.SchoolAgent} role.");

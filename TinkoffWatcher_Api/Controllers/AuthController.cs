@@ -111,12 +111,11 @@ namespace TinkoffWatcher_Api.Controllers
                 var jwt = JwtHelper.GenerateJwt(user, _configuration);
                 var refreshToken = JwtHelper.GenerateRefreshToken();
                 _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
-                var userId = Guid.Parse(user.Id);
 
                 var newRefresh = new RefreshToken()
                 {
                     Id = Guid.NewGuid(),
-                    UserId = userId,
+                    UserId = user.Id,
                     Token = refreshToken,
                     TokenExpiryTime = DateTime.UtcNow.AddDays(refreshTokenValidityInDays)
                 };

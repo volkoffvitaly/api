@@ -1,17 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TinkoffWatcher_Api.Migrations
 {
-    public partial class MainEntities : Migration
+    public partial class EntitiesAdded : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Sex",
-                table: "AspNetUsers",
-                newName: "Gender");
-
             migrationBuilder.AddColumn<Guid>(
                 name: "CompanyId",
                 table: "AspNetUsers",
@@ -71,8 +66,7 @@ namespace TinkoffWatcher_Api.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -87,12 +81,17 @@ namespace TinkoffWatcher_Api.Migrations
                     AboutMe = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Cvs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cvs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,12 +101,25 @@ namespace TinkoffWatcher_Api.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Languages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -120,8 +132,7 @@ namespace TinkoffWatcher_Api.Migrations
                     PositionAmount = table.Column<int>(type: "int", nullable: false),
                     CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -143,8 +154,7 @@ namespace TinkoffWatcher_Api.Migrations
                     Link = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CvId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -169,8 +179,7 @@ namespace TinkoffWatcher_Api.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CvId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -192,8 +201,7 @@ namespace TinkoffWatcher_Api.Migrations
                     LanguageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CvId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -220,21 +228,19 @@ namespace TinkoffWatcher_Api.Migrations
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AdditionalInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StudentId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     VacancyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Interviews", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Interviews_AspNetUsers_StudentId1",
-                        column: x => x.StudentId1,
+                        name: "FK_Interviews_AspNetUsers_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Interviews_Vacancies_VacancyId",
                         column: x => x.VacancyId,
@@ -248,12 +254,12 @@ namespace TinkoffWatcher_Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InterwiewId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Verdict = table.Column<int>(type: "int", nullable: false),
                     InterviewId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -272,16 +278,15 @@ namespace TinkoffWatcher_Api.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_CvId",
-                table: "AspNetUsers",
-                column: "CvId",
-                unique: true,
-                filter: "[CvId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_InterviewId",
                 table: "AspNetUsers",
                 column: "InterviewId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cvs_UserId",
+                table: "Cvs",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Feedbacks_InterviewId",
@@ -289,9 +294,9 @@ namespace TinkoffWatcher_Api.Migrations
                 column: "InterviewId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Interviews_StudentId1",
+                name: "IX_Interviews_StudentId",
                 table: "Interviews",
-                column: "StudentId1");
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Interviews_VacancyId",
@@ -332,14 +337,6 @@ namespace TinkoffWatcher_Api.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUsers_Cvs_CvId",
-                table: "AspNetUsers",
-                column: "CvId",
-                principalTable: "Cvs",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUsers_Interviews_InterviewId",
                 table: "AspNetUsers",
                 column: "InterviewId",
@@ -355,10 +352,6 @@ namespace TinkoffWatcher_Api.Migrations
                 table: "AspNetUsers");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_AspNetUsers_Cvs_CvId",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_AspNetUsers_Interviews_InterviewId",
                 table: "AspNetUsers");
 
@@ -367,6 +360,9 @@ namespace TinkoffWatcher_Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "LanguageProficiencies");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "UsefulLinks");
@@ -391,10 +387,6 @@ namespace TinkoffWatcher_Api.Migrations
 
             migrationBuilder.DropIndex(
                 name: "IX_AspNetUsers_CompanyId",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropIndex(
-                name: "IX_AspNetUsers_CvId",
                 table: "AspNetUsers");
 
             migrationBuilder.DropIndex(
@@ -432,11 +424,6 @@ namespace TinkoffWatcher_Api.Migrations
             migrationBuilder.DropColumn(
                 name: "Skype",
                 table: "AspNetUsers");
-
-            migrationBuilder.RenameColumn(
-                name: "Gender",
-                table: "AspNetUsers",
-                newName: "Sex");
         }
     }
 }

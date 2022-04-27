@@ -6,7 +6,7 @@ using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<Guid>
     {
         public string FirstName { get; set; }
         public string MiddleName { get; set; }

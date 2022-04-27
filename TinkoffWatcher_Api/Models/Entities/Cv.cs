@@ -1,6 +1,7 @@
 ﻿using Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TinkoffWatcher_Api.Models.Entities
 {
@@ -8,6 +9,7 @@ namespace TinkoffWatcher_Api.Models.Entities
     {
         public string AboutMe { get; set; }
 
+        [ForeignKey(nameof(User))]
         public Guid UserId { get; set; }
         public ApplicationUser User { get; set; }
 
