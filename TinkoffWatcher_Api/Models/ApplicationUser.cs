@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using TinkoffWatcher_Api.Enums;
 using TinkoffWatcher_Api.Models.Entities;
 
@@ -23,5 +24,19 @@ namespace TinkoffWatcher_Api.Models
 
         public Guid? CompanyId { get; set; }
         public Company Company { get; set; }
+
+
+
+        [NotMapped]
+        public string FCs
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(MiddleName))
+                    return string.Concat(LastName, " ", FirstName);
+                else
+                    return string.Concat(LastName, " ", FirstName, " ", MiddleName);
+            }
+        }
     }
 }
