@@ -48,7 +48,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] FeedbackEditDto model)
+        public async Task<IActionResult> Create([FromBody] FeedbackCreateDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
