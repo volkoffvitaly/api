@@ -48,7 +48,6 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
-        [Route("Create")]
         public async Task<IActionResult> Create([FromBody] VacancyEditDto model)
         {
             if (!ModelState.IsValid)

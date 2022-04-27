@@ -13,11 +13,11 @@ namespace TinkoffWatcher_Api.Controllers
 {
     [Route("Api/[controller]")]
     [ApiController]
-    public class FeedbackContoller : Controller
+    public class FeedbackController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public FeedbackContoller(ApplicationDbContext context, IMapper mapper)
+        public FeedbackController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -48,7 +48,6 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
-        [Route("Create")]
         public async Task<IActionResult> Create([FromBody] FeedbackEditDto model)
         {
             if (!ModelState.IsValid)
