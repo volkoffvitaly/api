@@ -18,6 +18,7 @@ namespace TinkoffWatcher_Api
             CreateMap<Company, CompanyDto>();
 
             CreateMap<FeedbackEditDto, Feedback>();
+            CreateMap<FeedbackCreateDto, Feedback>();
             CreateMap<Feedback, FeedbackDto>();
 
             CreateMap<InterviewEditDto, Interview>();
