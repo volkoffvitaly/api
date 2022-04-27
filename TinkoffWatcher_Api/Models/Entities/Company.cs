@@ -9,5 +9,6 @@ namespace TinkoffWatcher_Api.Models.Entities
         public string Description { get; set; }
 
         public ICollection<ApplicationUser> Employees { get; set; }
+        public ICollection<Vacancy> Vacancies { get; set; }
     }
 }

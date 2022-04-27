@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.User;
+using TinkoffWatcher_Api.Dto.Vacancy;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -117,6 +118,20 @@ namespace TinkoffWatcher_Api.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("{id}/Vacancies")]
+        public async Task<IActionResult> GetVacancies(Guid id)
+        {
+            var companyEntity = await _context.Companies.Include(x => x.Vacancies).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (companyEntity == null)
+                return NotFound();
+
+            var vacancyDtos = _mapper.Map<List<VacancyDto>>(companyEntity.Vacancies);
+
+            return Ok(vacancyDtos);
         }
 
 

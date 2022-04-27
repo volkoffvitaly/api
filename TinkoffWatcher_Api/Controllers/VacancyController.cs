@@ -25,15 +25,6 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            var vacancyEntities = _context.Companies;
-            var vacancyDtos = _mapper.ProjectTo<VacancyDto>(vacancyEntities);
-
-            return Ok(vacancyDtos);
-        }
-
-        [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
