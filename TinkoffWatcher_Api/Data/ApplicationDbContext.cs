@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Models;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Auth;
 using TinkoffWatcher_Api.Models.Entities;
@@ -31,5 +34,51 @@ namespace TinkoffWatcher_Api.Data
         public DbSet<Vacancy> Vacancies { get; set; }
         public DbSet<WorkExperience> WorkExperiences { get; set; }
 
+
+        public override int SaveChanges()
+        {
+            UpdateCreateAndModifyProperties();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            UpdateCreateAndModifyProperties();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        public string GetTableName<TEntity>() => Model.FindEntityType(typeof(TEntity)).GetTableName();
+
+        private void UpdateCreateAndModifyProperties()
+        {
+            ChangeTracker.DetectChanges();
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Detached:
+                        break;
+                    case EntityState.Unchanged:
+                        break;
+                    case EntityState.Deleted:
+                        break;
+                    case EntityState.Modified:
+                        if (entry.Entity is BaseEntity trackModified)
+                        {
+                            trackModified.EditedDate = DateTime.UtcNow;
+                        }
+                        break;
+                    case EntityState.Added:
+                        if (entry.Entity is BaseEntity trackAdded)
+                        {
+                            trackAdded.CreatedDate = DateTime.UtcNow;
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
     }
 }
