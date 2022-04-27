@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Company;
+using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -108,6 +109,70 @@ namespace TinkoffWatcher_Api.Controllers
             try
             {
                 _context.Remove(companyEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Ok();
+        }
+
+
+        [HttpGet]
+        [Route("{id}/Employees")]
+        public async Task<IActionResult> GetEmployees(Guid id)
+        {
+            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (companyEntity == null)
+                return NotFound();
+
+            var fullUserInfoDtos = _mapper.Map<List<FullUserInfoDto>>(companyEntity.Employees);
+
+            return Ok(fullUserInfoDtos);
+        }
+
+        [HttpPost]
+        [Route("{id}/Employees")]
+        public async Task<IActionResult> CreateEmployee(Guid id, [FromBody] EmployeeEditDto employeeEditDto)
+        {
+            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == employeeEditDto.UserId.ToString());
+
+            if (companyEntity == null || userEntity == null)
+                return NotFound();
+
+            if (companyEntity.Employees.Any(x => x.Id == userEntity.Id))
+                return Conflict();
+
+            try
+            {
+                companyEntity.Employees.Add(userEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{id}/Employees/{userId}")]
+        public async Task<IActionResult> DeleteEmployee(Guid id, Guid userId)
+        {
+            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId.ToString());
+
+            if (companyEntity == null || userEntity == null || !companyEntity.Employees.Any(x => x.Id == userEntity.Id))
+                return NotFound();
+
+            try
+            {
+                companyEntity.Employees.Remove(userEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)

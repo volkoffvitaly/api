@@ -5,7 +5,9 @@ using AutoMapper;
 using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.Interview;
+using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Dto.Vacancy;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api
@@ -14,6 +16,8 @@ namespace TinkoffWatcher_Api
     {
         public MapperProfile()
         {
+            CreateMap<ApplicationUser, FullUserInfoDto>();
+
             CreateMap<CompanyEditDto, Company>();
             CreateMap<Company, CompanyDto>();
 
