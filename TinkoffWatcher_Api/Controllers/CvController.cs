@@ -171,6 +171,111 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok();
         }
 
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var cvEntity = await _context.Cvs.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (cvEntity == null)
+                return NotFound();
+
+            try
+            {
+                _context.Remove(cvEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{cvId}/WorkExperience/{id}")]
+        public async Task<IActionResult> RemoveWorkExperience(Guid cvId, Guid id)
+        {
+            var cvEntity = await _context.Cvs
+                .Include(cv => cv.WorkExperiences).FirstOrDefaultAsync(x => x.Id == cvId);
+
+            if (cvEntity == null)
+                return NotFound();
+
+            var workExpEntity = cvEntity.WorkExperiences.FirstOrDefault(we => we.Id == id);
+
+            if (workExpEntity == null)
+                return NotFound();
+
+            try
+            {
+                _context.Remove(workExpEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{cvId}/UsefulLink/{id}")]
+        public async Task<IActionResult> RemoveUsefulLink(Guid cvId, Guid id)
+        {
+            var cvEntity = await _context.Cvs
+                .Include(cv => cv.UsefulLinks).FirstOrDefaultAsync(x => x.Id == cvId);
+
+            if (cvEntity == null)
+                return NotFound();
+
+            var usefulLinkEntity = cvEntity.UsefulLinks.FirstOrDefault(ul => ul.Id == id);
+
+            if (usefulLinkEntity == null)
+                return NotFound();
+
+            try
+            {
+                _context.Remove(usefulLinkEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{cvId}/LanguageProficiency/{id}")]
+        public async Task<IActionResult> RemoveLanguageProficiency(Guid cvId, Guid id)
+        {
+            var cvEntity = await _context.Cvs
+                .Include(cv => cv.LanguageProficiencies).FirstOrDefaultAsync(x => x.Id == cvId);
+
+            if (cvEntity == null)
+                return NotFound();
+
+            var languageProfEntity = cvEntity.LanguageProficiencies.FirstOrDefault(lp => lp.Id == id);
+
+            if (languageProfEntity == null)
+                return NotFound();
+
+            try
+            {
+                _context.Remove(languageProfEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Ok();
+        }
 
     }
 }
