@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TinkoffWatcher_Api.Dto.Base;
+using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Models;
 
 namespace TinkoffWatcher_Api.Dto.Interview
@@ -11,8 +12,8 @@ namespace TinkoffWatcher_Api.Dto.Interview
         public string AdditionalInfo { get; set; }
 
         public Guid StudentId { get; set; }
-        public ApplicationUser Student { get; set; }
-        public ICollection<ApplicationUser> Agents { get; set; }
+        public FullUserInfoDto Student { get; set; }
+        public ICollection<FullUserInfoDto> Agents { get; set; }
         public Guid VacancyId { get; set; }
         public ICollection<Models.Entities.Feedback> Feedbacks { get; set; }
     }

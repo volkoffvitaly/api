@@ -1,5 +1,6 @@
 ﻿using Models;
 using System;
+using System.Collections.Generic;
 
 namespace TinkoffWatcher_Api.Models.Entities
 {
@@ -11,5 +12,7 @@ namespace TinkoffWatcher_Api.Models.Entities
 
         public Guid CompanyId { get; set; }
         public Company Company { get; set; }
+
+        public ICollection<Interview> Interviews { get; set; }
     }
 }

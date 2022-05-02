@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
+using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.Interview;
 using TinkoffWatcher_Api.Models.Entities;
 
@@ -34,6 +35,16 @@ namespace TinkoffWatcher_Api.Controllers
             var interviewDtos = _mapper.ProjectTo<InterviewDto>(interviewEntities);
 
             return Ok(interviewDtos);
+        }
+
+        [HttpGet]
+        [Route("{id}/Feedbacks")]
+        public async Task<IActionResult> GetFeedbacks(Guid id)
+        {
+            var interviewEntity = await _context.Interviews.Include(_ => _.Feedbacks).FirstOrDefaultAsync(x => x.Id == id);
+            var feedbacksDtos = _mapper.Map<List<FeedbackDto>>(interviewEntity.Feedbacks);
+
+            return Ok(feedbacksDtos);
         }
 
         [HttpGet]

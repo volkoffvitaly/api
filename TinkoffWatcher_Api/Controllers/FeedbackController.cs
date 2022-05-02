@@ -26,7 +26,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var feedbackEntities = _context.Companies;
+            var feedbackEntities = _context.Feedbacks;
             var feedbackDtos = _mapper.ProjectTo<FeedbackDto>(feedbackEntities);
 
             return Ok(feedbackDtos);

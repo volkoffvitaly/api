@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
+using TinkoffWatcher_Api.Dto.Interview;
 using TinkoffWatcher_Api.Dto.Vacancy;
 using TinkoffWatcher_Api.Models.Entities;
 
@@ -36,6 +37,20 @@ namespace TinkoffWatcher_Api.Controllers
             var vacancyDto = _mapper.Map<VacancyDto>(vacancyEntity);
 
             return Ok(vacancyDto);
+        }
+
+        [HttpGet]
+        [Route("{id}/Interviews")]
+        public async Task<IActionResult> GetInterviews(Guid id)
+        {
+            var vacancyEntity = await _context.Vacancies.Include(x => x.Interviews).ThenInclude(x => x.Student).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (vacancyEntity == null)
+                return NotFound();
+
+            var interviewsDtos = _mapper.Map<List<InterviewDto>>(vacancyEntity.Interviews);
+
+            return Ok(interviewsDtos);
         }
 
         [HttpPost]
