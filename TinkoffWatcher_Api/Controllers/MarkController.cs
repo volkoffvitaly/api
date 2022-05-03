@@ -7,12 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
+using TinkoffWatcher_Api.Extensions;
+using TinkoffWatcher_Api.Filters;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -43,6 +46,31 @@ namespace TinkoffWatcher_Api.Controllers
             var markDto = _mapper.Map<MarkDto>(markEntity);
 
             return Ok(markDto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Filter([FromQuery] MarksFilter filter)
+        {
+            var markEntities = _context.Marks.Where(GenerateFilterPredicate(filter));
+            var marksDtos = _mapper.ProjectTo<MarkDto>(markEntities);
+
+            return Ok(marksDtos);
+        }
+
+        private static Expression<Func<Mark, bool>> GenerateFilterPredicate(MarksFilter filter)
+        {
+            Expression<Func<Mark, bool>> expr = request => true;
+
+            if (filter.Value.HasValue)
+                expr = expr.AndAlso(mark => mark.Value == filter.Value);
+
+            if (filter.Semester.HasValue)
+                expr = expr.AndAlso(mark => mark.Semester == filter.Semester);
+
+            if (filter.StartYear.HasValue && filter.EndYear.HasValue)
+                expr = expr.AndAlso(mark => filter.StartYear <= mark.Year && mark.Year <= filter.EndYear);
+
+            return expr;
         }
 
         [HttpPost]
