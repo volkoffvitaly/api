@@ -152,7 +152,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
         
         [HttpGet]
-        [Route("GetRoles")]
+        [Route("Roles")]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _context.Roles.Select(_ => _.Name).ToListAsync();
@@ -160,7 +160,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
-        [Route("AddToRole/{id}")]
+        [Route("{id}/Role")]
         public async Task<IActionResult> AddToRole(Guid id, string role)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
@@ -174,6 +174,30 @@ namespace TinkoffWatcher_Api.Controllers
             try
             {
                 await _userManager.AddToRoleAsync(user, role);
+            }
+            catch
+            {
+                throw new Exception();
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{id}/Role")]
+        public async Task<IActionResult> RemoveFromRole(Guid id, string role)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            var roles = _context.Roles.Select(_ => _.Name).ToList();
+
+            if (!roles.Contains(role))
+            {
+                throw new ArgumentException("Wrong role name");
+            }
+
+            try
+            {
+                await _userManager.RemoveFromRoleAsync(user, role);
             }
             catch
             {
