@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -40,16 +41,77 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok(usersInfoDto);
         }
 
-        [HttpGet("token")]
-        public async Task<IActionResult> GetUserInfo(string token)
+        /// <summary>
+        /// Получить оценки пользователя как студента
+        /// </summary>
+        /// <param name="token">Токен</param>
+        [HttpGet("StudentMarks")]
+        public async Task<IActionResult> GetMarksAsStudent(Guid id)
         {
-            var claimsPrincipal = GetPrincipalFromToken(token);
-            var username = claimsPrincipal.Identity?.Name;
+            var user = await _context.Users
+                    .Include(x => x.MarksAsStudent)
+                    .SingleOrDefaultAsync(x => x.Id == id);
 
-            if (string.IsNullOrWhiteSpace(username))
+            if (user == null)
                 return NotFound();
 
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == username);
+            var sortedMarks = user.MarksAsStudent
+                .OrderByDescending(x => x.Year)
+                .ThenByDescending(x => x.Semester);
+
+            var marksDtos = _mapper.Map<List<MarkDto>>(sortedMarks);
+
+            return Ok(marksDtos);
+        }
+
+        [HttpGet("AgentMarks")]
+        public async Task<IActionResult> GetMarksAsAgent(Guid id)
+        {
+            var user = await _context.Users
+                .Include(x => x.MarksAsAgent)
+                .SingleOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+                return NotFound();
+
+            var sortedMarks = user.MarksAsAgent
+                .OrderByDescending(x => x.Year)
+                .ThenByDescending(x => x.Semester);
+
+            var marksDtos = _mapper.Map<List<MarkDto>>(sortedMarks);
+
+            return Ok(marksDtos);
+        }
+
+        [HttpGet("Marks")]
+        public async Task<IActionResult> GetMarks(Guid id)
+        {
+            var user = await _context.Users
+                .Include(x => x.MarksAsStudent)
+                .Include(x => x.MarksAsAgent)
+                .SingleOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+                return NotFound();
+
+            var sortedMarks = user.MarksAsAgent
+                .Concat(user.MarksAsStudent)
+                .Distinct()
+                .OrderByDescending(x => x.Year)
+                .ThenByDescending(x => x.Semester);
+
+            var marksDtos = _mapper.Map<List<MarkDto>>(sortedMarks);
+
+            return Ok(marksDtos);
+        }
+                
+        [HttpGet("UserInfo")]
+        public async Task<IActionResult> GetUserInfo(string token)
+        {
+            var user = await _context.Users
+                .Include(x => x.MarksAsStudent)
+                .Include(x => x.MarksAsAgent)
+                .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
 
             if (user == null)
                 return NotFound();
@@ -59,7 +121,7 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok(userInfoDto);
         }
 
-        private ClaimsPrincipal GetPrincipalFromToken(string token)
+        private string GetUsernameFromToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -71,11 +133,16 @@ namespace TinkoffWatcher_Api.Controllers
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
             if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
 
-            return principal;
+            var username = claimsPrincipal.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(username))
+                throw new Exception("Token generation/validation failed");
+
+            return username;
         }
     }
 }

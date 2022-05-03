@@ -17,7 +17,9 @@ namespace TinkoffWatcher_Api
     {
         public MapperProfile()
         {
-            CreateMap<ApplicationUser, FullUserInfoDto>();
+            CreateMap<ApplicationUser, FullUserInfoDto>()
+                .ForMember(x => x.MarksAsStudent, opt => opt.MapFrom(x => x.MarksAsStudent))
+                .ForMember(x => x.MarksAsAgent, opt => opt.MapFrom(x => x.MarksAsAgent));
 
             CreateMap<CompanyEditDto, Company>();
             CreateMap<Company, CompanyDto>();
@@ -31,6 +33,9 @@ namespace TinkoffWatcher_Api
 
             CreateMap<VacancyEditDto, Vacancy>();
             CreateMap<Vacancy, VacancyDto>();
+
+            CreateMap<MarkEditDto, Mark>();
+            CreateMap<Mark, MarkDto>();
 
             CreateMap<WorkExperience, WorkExperienceDto>();
             CreateMap<WorkExperienceDto, WorkExperience>();

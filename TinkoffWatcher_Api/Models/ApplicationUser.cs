@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using TinkoffWatcher_Api.Enums;
 using TinkoffWatcher_Api.Models.Entities;
@@ -20,11 +21,13 @@ namespace TinkoffWatcher_Api.Models
         public bool IsViber { get; set; }
 
         public Guid? CvId { get; set; }
-        public Cv Cv { get; set; }
+        public virtual Cv Cv { get; set; }
 
         public Guid? CompanyId { get; set; }
-        public Company Company { get; set; }
+        public virtual Company Company { get; set; }
 
+        public virtual ICollection<Mark> MarksAsStudent { get; set; }
+        public virtual ICollection<Mark> MarksAsAgent { get; set; }
 
 
         [NotMapped]

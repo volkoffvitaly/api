@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Enums;
 
 namespace TinkoffWatcher_Api.Dto.User
@@ -27,5 +29,8 @@ namespace TinkoffWatcher_Api.Dto.User
 
         public Guid? CvId { get; set; }
         public Guid? CompanyId { get; set; }
+
+        public ICollection<MarkDto> MarksAsStudent { get; set; }
+        public ICollection<MarkDto> MarksAsAgent { get; set; }
     }
 }
