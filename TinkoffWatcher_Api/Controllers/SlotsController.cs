@@ -52,7 +52,21 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Filter([FromQuery] SlotsFilter filter)
         {
-            var slotEntities = _context.Slots.Where(GenerateFilterPredicate(filter));
+            if (!filter.Month.HasValue && !filter.Day.HasValue && !filter.Year.HasValue)
+            {
+
+                filter.Year = DateTime.UtcNow.Year;
+                filter.Month = DateTime.UtcNow.Month;
+                filter.Day = DateTime.UtcNow.Day;
+
+                var filteredSlotEntities = _context.Slots.Where(GenerateFilterPredicateForDates(filter)).OrderBy(_ => _.Year).ThenBy(_ => _.Month).ThenBy(_ => _.Day);
+                var slotDtos = _mapper.ProjectTo<SlotDto>(filteredSlotEntities);
+
+                return Ok(slotDtos);
+            }
+
+            var filterPredicate = GenerateFilterPredicate(filter);
+            var slotEntities = _context.Slots.Where(filterPredicate).OrderBy(_ => _.Year).ThenBy(_ => _.Month).ThenBy(_ => _.Day);
             var slotsDtos = _mapper.ProjectTo<SlotDto>(slotEntities);
 
             return Ok(slotsDtos);
@@ -77,12 +91,26 @@ namespace TinkoffWatcher_Api.Controllers
             return expr;
         }
 
+        private static Expression<Func<Slot, bool>> GenerateFilterPredicateForDates(SlotsFilter filter)
+        {
+            Expression<Func<Slot, bool>> expr = request => true;
+
+            DateTime filterDate;
+            DateTime.TryParse($"{filter.Month}.{filter.Day}.{filter.Year}", out filterDate);
+
+            expr = expr.AndAlso(slot => DateTime.Parse($"{slot.Month}.{slot.Day}.{slot.Year}") >= filterDate);
+
+            if (filter.VacancyId.HasValue)
+                expr = expr.AndAlso(slot => slot.VacancyId == filter.VacancyId);
+
+            return expr;
+        }
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] SlotEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-                        
+
             var slotEntity = _mapper.Map<Slot>(model);
 
             _context.Add(slotEntity);
@@ -119,7 +147,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             if (slotEntity == null)
                 return NotFound();
-                        
+
             _context.Remove(slotEntity);
             await _context.SaveChangesAsync();
 
