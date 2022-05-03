@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,11 +24,16 @@ namespace TinkoffWatcher_Api.Controllers
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        public UserController(ApplicationDbContext context, IMapper mapper, IConfiguration configuration)
+        public UserController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IMapper mapper, 
+            IConfiguration configuration)
         {
             _context = context;
+            _userManager = userManager;
             _mapper = mapper;
             _configuration = configuration;
         }
@@ -143,6 +149,38 @@ namespace TinkoffWatcher_Api.Controllers
                 throw new Exception("Token generation/validation failed");
 
             return username;
+        }
+        
+        [HttpGet]
+        [Route("GetRoles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            var roles = await _context.Roles.Select(_ => _.Name).ToListAsync();
+            return Ok(roles);
+        }
+
+        [HttpPost]
+        [Route("AddToRole/{id}")]
+        public async Task<IActionResult> AddToRole(Guid id, string role)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            var roles = _context.Roles.Select(_ => _.Name).ToList();
+
+            if(!roles.Contains(role))
+            {
+                throw new ArgumentException("Wrong role name");
+            }
+
+            try
+            {
+                await _userManager.AddToRoleAsync(user, role);
+            }
+            catch
+            {
+                throw new Exception();
+            }
+
+            return Ok();
         }
     }
 }
