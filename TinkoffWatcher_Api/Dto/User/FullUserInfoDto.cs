@@ -30,7 +30,7 @@ namespace TinkoffWatcher_Api.Dto.User
         public Guid? CvId { get; set; }
         public Guid? CompanyId { get; set; }
 
-        public ICollection<MarkDto> MarksAsStudent { get; set; }
-        public ICollection<MarkDto> MarksAsAgent { get; set; }
+        public virtual ICollection<MarkDto> MarksAsStudent { get; set; }
+        public virtual ICollection<MarkDto> MarksAsAgent { get; set; }
     }
 }

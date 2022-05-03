@@ -38,7 +38,10 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var markEntity = await _context.Marks.FirstOrDefaultAsync(x => x.Id == id);
+            var markEntity = await _context.Marks
+                .Include(x => x.Agent)
+                .Include(x => x.Student)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (markEntity == null)
                 return NotFound();
@@ -51,7 +54,10 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Filter([FromQuery] MarksFilter filter)
         {
-            var markEntities = _context.Marks.Where(GenerateFilterPredicate(filter));
+            var markEntities = _context.Marks
+                .Include(x => x.Agent)
+                .Include(x => x.Student)
+                .Where(GenerateFilterPredicate(filter));
             var marksDtos = _mapper.ProjectTo<MarkDto>(markEntities);
 
             return Ok(marksDtos);

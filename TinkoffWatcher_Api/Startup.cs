@@ -10,8 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Models;
+using Newtonsoft.Json;
 
 namespace TinkoffWatcher_Api
 {
@@ -43,7 +46,11 @@ namespace TinkoffWatcher_Api
                 );
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Internship_Api", Version = "v1" });
