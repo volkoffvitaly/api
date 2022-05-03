@@ -52,19 +52,6 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Filter([FromQuery] SlotsFilter filter)
         {
-            if (!filter.Month.HasValue && !filter.Day.HasValue && !filter.Year.HasValue)
-            {
-
-                filter.Year = DateTime.UtcNow.Year;
-                filter.Month = DateTime.UtcNow.Month;
-                filter.Day = DateTime.UtcNow.Day;
-
-                var filteredSlotEntities = _context.Slots.Where(GenerateFilterPredicateForDates(filter)).OrderBy(_ => _.Year).ThenBy(_ => _.Month).ThenBy(_ => _.Day);
-                var slotDtos = _mapper.ProjectTo<SlotDto>(filteredSlotEntities);
-
-                return Ok(slotDtos);
-            }
-
             var filterPredicate = GenerateFilterPredicate(filter);
             var slotEntities = _context.Slots.Where(filterPredicate).OrderBy(_ => _.Year).ThenBy(_ => _.Month).ThenBy(_ => _.Day);
             var slotsDtos = _mapper.ProjectTo<SlotDto>(slotEntities);
@@ -75,6 +62,12 @@ namespace TinkoffWatcher_Api.Controllers
         private static Expression<Func<Slot, bool>> GenerateFilterPredicate(SlotsFilter filter)
         {
             Expression<Func<Slot, bool>> expr = request => true;
+
+            if(!filter.Month.HasValue && !filter.Day.HasValue && !filter.Year.HasValue)
+            {
+                var filterDate = DateTime.UtcNow.Date;
+                expr = expr.AndAlso(slot => slot.SlotDate >= filterDate);
+            }
 
             if (filter.Year.HasValue)
                 expr = expr.AndAlso(slot => slot.Year == filter.Year);
@@ -90,21 +83,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             return expr;
         }
-
-        private static Expression<Func<Slot, bool>> GenerateFilterPredicateForDates(SlotsFilter filter)
-        {
-            Expression<Func<Slot, bool>> expr = request => true;
-
-            DateTime filterDate;
-            DateTime.TryParse($"{filter.Month}.{filter.Day}.{filter.Year}", out filterDate);
-
-            expr = expr.AndAlso(slot => DateTime.Parse($"{slot.Month}.{slot.Day}.{slot.Year}") >= filterDate);
-
-            if (filter.VacancyId.HasValue)
-                expr = expr.AndAlso(slot => slot.VacancyId == filter.VacancyId);
-
-            return expr;
-        }
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] SlotEditDto model)
         {
@@ -112,6 +91,7 @@ namespace TinkoffWatcher_Api.Controllers
                 return BadRequest(ModelState);
 
             var slotEntity = _mapper.Map<Slot>(model);
+            slotEntity.SlotDate = new DateTime(model.Year,model.Month, model.Day);
 
             _context.Add(slotEntity);
             await _context.SaveChangesAsync();
@@ -132,6 +112,7 @@ namespace TinkoffWatcher_Api.Controllers
                 return NotFound();
 
             slotEntity = _mapper.Map(model, slotEntity);
+            slotEntity.SlotDate = new DateTime(model.Year, model.Month, model.Day);
 
             _context.Update(slotEntity);
             await _context.SaveChangesAsync();
