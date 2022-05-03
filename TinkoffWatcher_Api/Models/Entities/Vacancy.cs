@@ -14,5 +14,6 @@ namespace TinkoffWatcher_Api.Models.Entities
         public Company Company { get; set; }
 
         public ICollection<Interview> Interviews { get; set; }
-    }
+        public ICollection<Slot> Slots { get; set; }
+}
 }

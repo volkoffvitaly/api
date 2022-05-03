@@ -3,16 +3,10 @@
 namespace TinkoffWatcher_Api.Filters
 {
     /// <summary>
-    /// Фильтр для оценок
+    /// Фильтр для слотов
     /// </summary>
-    public class MarksFilter //: BaseFilter
+    public class MarksFilter
     {
-        //public EmployeeRequestFilter()
-        //{
-        //    DefaultSortColumn = "RequestType";
-        //    DefaultSortDesc = false;
-        //}
-
         public int? Value { get; set; }
         public int? StartYear { get; set; }
 

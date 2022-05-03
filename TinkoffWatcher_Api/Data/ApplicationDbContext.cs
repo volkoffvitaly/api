@@ -33,6 +33,7 @@ namespace TinkoffWatcher_Api.Data
         public DbSet<UsefulLink> UsefulLinks { get; set; }
         public DbSet<Vacancy> Vacancies { get; set; }
         public DbSet<Mark> Marks { get; set; }
+        public DbSet<Slot> Slots { get; set; }
         public DbSet<WorkExperience> WorkExperiences { get; set; }
 
 

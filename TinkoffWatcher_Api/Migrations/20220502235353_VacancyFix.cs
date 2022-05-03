@@ -7,31 +7,31 @@ namespace TinkoffWatcher_Api.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Feedbacks_Interviews_InterviewId",
-                table: "Feedbacks");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_Feedbacks_Interviews_InterviewId",
+            //    table: "Feedbacks");
 
-            migrationBuilder.DropColumn(
-                name: "InterwiewId",
-                table: "Feedbacks");
+            //migrationBuilder.DropColumn(
+            //    name: "InterwiewId",
+            //    table: "Feedbacks");
 
-            migrationBuilder.AlterColumn<Guid>(
-                name: "InterviewId",
-                table: "Feedbacks",
-                type: "uniqueidentifier",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
-                oldClrType: typeof(Guid),
-                oldType: "uniqueidentifier",
-                oldNullable: true);
+            //migrationBuilder.AlterColumn<Guid>(
+            //    name: "InterviewId",
+            //    table: "Feedbacks",
+            //    type: "uniqueidentifier",
+            //    nullable: false,
+            //    defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
+            //    oldClrType: typeof(Guid),
+            //    oldType: "uniqueidentifier",
+            //    oldNullable: true);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Feedbacks_Interviews_InterviewId",
-                table: "Feedbacks",
-                column: "InterviewId",
-                principalTable: "Interviews",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+            //migrationBuilder.AddForeignKey(
+            //    name: "FK_Feedbacks_Interviews_InterviewId",
+            //    table: "Feedbacks",
+            //    column: "InterviewId",
+            //    principalTable: "Interviews",
+            //    principalColumn: "Id",
+            //    onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -6,6 +6,7 @@ using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.Cv;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.Interview;
+using TinkoffWatcher_Api.Dto.Slot;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Dto.Vacancy;
 using TinkoffWatcher_Api.Models;
@@ -36,6 +37,9 @@ namespace TinkoffWatcher_Api
 
             CreateMap<MarkEditDto, Mark>();
             CreateMap<Mark, MarkDto>();
+
+            CreateMap<SlotEditDto, Slot>();
+            CreateMap<Slot, SlotDto>();
 
             CreateMap<WorkExperience, WorkExperienceDto>();
             CreateMap<WorkExperienceDto, WorkExperience>();
