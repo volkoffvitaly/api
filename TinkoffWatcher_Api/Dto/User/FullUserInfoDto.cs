@@ -29,6 +29,7 @@ namespace TinkoffWatcher_Api.Dto.User
 
         public Guid? CvId { get; set; }
         public Guid? CompanyId { get; set; }
+        public string Post { get; set; }
 
         public virtual ICollection<MarkDto> MarksAsStudent { get; set; }
         public virtual ICollection<MarkDto> MarksAsAgent { get; set; }

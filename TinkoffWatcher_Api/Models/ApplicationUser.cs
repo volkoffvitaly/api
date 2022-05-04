@@ -22,9 +22,10 @@ namespace TinkoffWatcher_Api.Models
 
         public Guid? CvId { get; set; }
         public virtual Cv Cv { get; set; }
-
+                
         public Guid? CompanyId { get; set; }
         public virtual Company Company { get; set; }
+        public string Post { get; set; }
 
         public virtual ICollection<Mark> MarksAsStudent { get; set; }
         public virtual ICollection<Mark> MarksAsAgent { get; set; }

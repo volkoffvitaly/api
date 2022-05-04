@@ -47,10 +47,6 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok(usersInfoDto);
         }
 
-        /// <summary>
-        /// Получить оценки пользователя как студента
-        /// </summary>
-        /// <param name="token">Токен</param>
         [HttpGet("StudentMarks")]
         public async Task<IActionResult> GetMarksAsStudent(Guid id)
         {
@@ -111,19 +107,68 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok(marksDtos);
         }
                 
-        [HttpGet("UserInfo")]
-        public async Task<IActionResult> GetUserInfo(string token)
+        [HttpGet]
+        [Route("UserInfo/{id}")]
+        public async Task<IActionResult> GetUserInfo(Guid id)
         {
             var user = await _context.Users
-                .Include(x => x.MarksAsStudent)
-                .Include(x => x.MarksAsAgent)
-                .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+                    .Include(x => x.MarksAsStudent)
+                    .Include(x => x.MarksAsAgent)
+                    .SingleOrDefaultAsync(x => x.Id == id);
 
-            if (user == null)
+            if (user == default)
                 return NotFound();
 
             var userInfoDto = _mapper.Map<FullUserInfoDto>(user);
 
+            return Ok(userInfoDto);
+        }
+
+        [HttpGet]
+        [Route("UserInfo")]
+        public async Task<IActionResult> GetUserInfo(string token)
+        {
+            var user = await _context.Users
+                    .Include(x => x.MarksAsStudent)
+                    .Include(x => x.MarksAsAgent)
+                    .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+
+            if (user == default)
+                return NotFound();
+
+            var userInfoDto = _mapper.Map<FullUserInfoDto>(user);
+
+            return Ok(userInfoDto);
+        }
+
+        [HttpPut]
+        [Route("UserInfo")]
+        public async Task<IActionResult> UpdateUserInfo(string token, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
+        {
+            var user = await _context.Users
+                    .Include(x => x.MarksAsStudent)
+                    .Include(x => x.MarksAsAgent)
+                    .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+
+            if (user == default)
+                return NotFound();
+
+            fullUserInfoEditDto.Email = fullUserInfoEditDto.Email?.Trim();
+            fullUserInfoEditDto.FirstName = fullUserInfoEditDto.FirstName?.Trim();
+            fullUserInfoEditDto.MiddleName = fullUserInfoEditDto.MiddleName?.Trim();
+            fullUserInfoEditDto.LastName = fullUserInfoEditDto.LastName?.Trim();
+
+            var userWithSameCredentials = await _userManager.Users.FirstOrDefaultAsync(y => y.Email == fullUserInfoEditDto.Email);
+
+            if (userWithSameCredentials != default && userWithSameCredentials.Id != user.Id)
+                return BadRequest("Пользователь с такой электронной почтой уже существует");
+
+            user = _mapper.Map(fullUserInfoEditDto, user);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+
+            var userInfoDto = _mapper.Map<FullUserInfoDto>(user);
             return Ok(userInfoDto);
         }
 
