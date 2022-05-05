@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
+using TinkoffWatcher_Api.Filters;
 using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
@@ -39,10 +40,13 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsersInfo()
+        public async Task<IActionResult> GetAllUsersInfo([FromQuery] UserFilter userFilter)
         {
-            var users = _context.Users;
-            var usersInfoDto = _mapper.ProjectTo<FullUserInfoDto>(users);
+            var users = string.IsNullOrWhiteSpace(userFilter.Role) ? 
+                _userManager.Users.ToList() : 
+                await _userManager.GetUsersInRoleAsync(userFilter.Role);
+
+            var usersInfoDto = _mapper.Map<List<FullUserInfoDto>>(users);
 
             return Ok(usersInfoDto);
         }
