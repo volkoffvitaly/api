@@ -119,11 +119,13 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> GetUserInfo(string token)
         {
             var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+            var userRoles = await _userManager.GetRolesAsync(user);
 
             if (user == default)
                 return NotFound();
 
             var userInfoDto = _mapper.Map<FullUserInfoDto>(user);
+            userInfoDto.Roles = userRoles;
 
             return Ok(userInfoDto);
         }
