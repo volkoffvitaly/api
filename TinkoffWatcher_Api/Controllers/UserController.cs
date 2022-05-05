@@ -41,7 +41,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsersInfo()
         {
-            var users = _context.Users;
+            var users = _context.Users.Include(x => x.Company);
             var usersInfoDto = _mapper.ProjectTo<FullUserInfoDto>(users);
 
             return Ok(usersInfoDto);
@@ -112,6 +112,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> GetUserInfo(Guid id)
         {
             var user = await _context.Users
+                    .Include(x => x.Company)
                     .Include(x => x.MarksAsStudent)
                     .Include(x => x.MarksAsAgent)
                     .SingleOrDefaultAsync(x => x.Id == id);
@@ -129,6 +130,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> GetUserInfo(string token)
         {
             var user = await _context.Users
+                    .Include(x => x.Company)
                     .Include(x => x.MarksAsStudent)
                     .Include(x => x.MarksAsAgent)
                     .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
@@ -146,6 +148,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> UpdateUserInfo(string token, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
         {
             var user = await _context.Users
+                    .Include(x => x.Company)
                     .Include(x => x.MarksAsStudent)
                     .Include(x => x.MarksAsAgent)
                     .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
