@@ -9,6 +9,6 @@ namespace TinkoffWatcher_Api.Models.Entities
         public LanguageLevelEnum LanguageLevel { get; set; }
 
         public Guid LanguageId { get; set; }
-        public Language Language { get; set; }
+        public virtual Language Language { get; set; }
     }
 }

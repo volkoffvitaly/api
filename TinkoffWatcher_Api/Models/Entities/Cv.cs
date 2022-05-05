@@ -11,10 +11,10 @@ namespace TinkoffWatcher_Api.Models.Entities
 
         [ForeignKey(nameof(User))]
         public Guid UserId { get; set; }
-        public ApplicationUser User { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
-        public ICollection<LanguageProficiency> LanguageProficiencies { get; set; }
-        public ICollection<WorkExperience> WorkExperiences { get; set; }
-        public ICollection<UsefulLink> UsefulLinks { get; set; }
+        public virtual ICollection<LanguageProficiency> LanguageProficiencies { get; set; }
+        public virtual ICollection<WorkExperience> WorkExperiences { get; set; }
+        public virtual ICollection<UsefulLink> UsefulLinks { get; set; }
     }
 }

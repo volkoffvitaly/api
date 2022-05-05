@@ -41,7 +41,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsersInfo()
         {
-            var users = _context.Users.Include(x => x.Company);
+            var users = _context.Users;
             var usersInfoDto = _mapper.ProjectTo<FullUserInfoDto>(users);
 
             return Ok(usersInfoDto);
@@ -50,9 +50,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet("StudentMarks")]
         public async Task<IActionResult> GetMarksAsStudent(Guid id)
         {
-            var user = await _context.Users
-                    .Include(x => x.MarksAsStudent)
-                    .SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
 
             if (user == null)
                 return NotFound();
@@ -69,9 +67,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet("AgentMarks")]
         public async Task<IActionResult> GetMarksAsAgent(Guid id)
         {
-            var user = await _context.Users
-                .Include(x => x.MarksAsAgent)
-                .SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
 
             if (user == null)
                 return NotFound();
@@ -88,10 +84,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet("Marks")]
         public async Task<IActionResult> GetMarks(Guid id)
         {
-            var user = await _context.Users
-                .Include(x => x.MarksAsStudent)
-                .Include(x => x.MarksAsAgent)
-                .SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
 
             if (user == null)
                 return NotFound();
@@ -111,11 +104,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo/{id}")]
         public async Task<IActionResult> GetUserInfo(Guid id)
         {
-            var user = await _context.Users
-                    .Include(x => x.Company)
-                    .Include(x => x.MarksAsStudent)
-                    .Include(x => x.MarksAsAgent)
-                    .SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
 
             if (user == default)
                 return NotFound();
@@ -129,11 +118,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo")]
         public async Task<IActionResult> GetUserInfo(string token)
         {
-            var user = await _context.Users
-                    .Include(x => x.Company)
-                    .Include(x => x.MarksAsStudent)
-                    .Include(x => x.MarksAsAgent)
-                    .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
 
             if (user == default)
                 return NotFound();
@@ -147,11 +132,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo")]
         public async Task<IActionResult> UpdateUserInfo(string token, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
         {
-            var user = await _context.Users
-                    .Include(x => x.Company)
-                    .Include(x => x.MarksAsStudent)
-                    .Include(x => x.MarksAsAgent)
-                    .SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
 
             if (user == default)
                 return NotFound();

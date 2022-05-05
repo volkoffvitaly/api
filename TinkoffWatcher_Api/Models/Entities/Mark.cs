@@ -17,11 +17,11 @@ namespace TinkoffWatcher_Api.Models.Entities
         [ForeignKey(nameof(Student))]
         public Guid StudentId { get; set; }
         [InverseProperty(nameof(ApplicationUser.MarksAsStudent))]
-        public ApplicationUser Student { get; set; }
+        public virtual ApplicationUser Student { get; set; }
 
         [ForeignKey(nameof(Agent))]
         public Guid AgentId { get; set; }
         [InverseProperty(nameof(ApplicationUser.MarksAsAgent))]
-        public ApplicationUser Agent { get; set; }
+        public virtual ApplicationUser Agent { get; set; }
     }
 }

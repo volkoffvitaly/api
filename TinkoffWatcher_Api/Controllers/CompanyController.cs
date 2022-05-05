@@ -126,7 +126,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Vacancies")]
         public async Task<IActionResult> GetVacancies(Guid id)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Vacancies).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound();
@@ -141,7 +141,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Employees")]
         public async Task<IActionResult> GetEmployees(Guid id)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound();
@@ -155,7 +155,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Employees")]
         public async Task<IActionResult> AddEmployee(Guid id, [FromBody] EmployeeEditDto employeeEditDto)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound("Company wasn't found. Id: " + id);
@@ -181,7 +181,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Employees/{userId}")]
         public async Task<IActionResult> RemoveEmployee(Guid id, Guid userId)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound("Company wasn't found. Id: " + id);

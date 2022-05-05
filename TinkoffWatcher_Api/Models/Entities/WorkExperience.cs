@@ -12,6 +12,6 @@ namespace TinkoffWatcher_Api.Models.Entities
         public DateTime EndDate { get; set; }
 
         public Guid CvId { get; set; }
-        public Cv Cv { get; set; }
+        public virtual Cv Cv { get; set; }
     }
 }

@@ -14,6 +14,9 @@ namespace TinkoffWatcher_Api.Dto.User
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
 
+        public Guid? RoleId { get; set; }
+        public string Role { get; set; }
+
 
         // From ApplicationUser
         public string FirstName { get; set; }
