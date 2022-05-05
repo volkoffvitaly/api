@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,8 @@ using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.Interview;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Dto.Vacancy;
+using TinkoffWatcher_Api.Filters;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -19,11 +22,13 @@ namespace TinkoffWatcher_Api.Controllers
     public class CompanyController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
-        public CompanyController(ApplicationDbContext context, IMapper mapper)
+        public CompanyController(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -139,14 +144,18 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpGet]
         [Route("{id}/Employees")]
-        public async Task<IActionResult> GetEmployees(Guid id)
+        public async Task<IActionResult> GetEmployees(Guid id, [FromQuery] UserFilter userFilter)
         {
             var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound();
 
-            var fullUserInfoDtos = _mapper.Map<List<FullUserInfoDto>>(companyEntity.Employees);
+            var users = string.IsNullOrWhiteSpace(userFilter.Role) ?
+                companyEntity.Employees :
+                companyEntity.Employees.Where(x => _userManager.IsInRoleAsync(x, userFilter.Role).GetAwaiter().GetResult());
+
+            var fullUserInfoDtos = _mapper.Map<List<FullUserInfoDto>>(users);
 
             return Ok(fullUserInfoDtos);
         }
