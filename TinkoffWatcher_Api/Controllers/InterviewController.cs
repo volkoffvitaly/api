@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace TinkoffWatcher_Api.Controllers
 {
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize]
     public class InterviewController : Controller
     {
         private readonly ApplicationDbContext _context;

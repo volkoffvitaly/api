@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,6 +20,7 @@ namespace TinkoffWatcher_Api.Controllers
 {
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CompanyController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
