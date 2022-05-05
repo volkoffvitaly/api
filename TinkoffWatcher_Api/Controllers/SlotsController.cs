@@ -53,7 +53,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> Filter([FromQuery] SlotsFilter filter)
         {
             var filterPredicate = GenerateFilterPredicate(filter);
-            var slotEntities = _context.Slots.Where(filterPredicate).OrderBy(_ => _.Year).ThenBy(_ => _.Month).ThenBy(_ => _.Day);
+            var slotEntities = _context.Slots.Where(filterPredicate).OrderBy(x => x.DateTime);
             var slotsDtos = _mapper.ProjectTo<SlotDto>(slotEntities);
 
             return Ok(slotsDtos);
@@ -63,20 +63,13 @@ namespace TinkoffWatcher_Api.Controllers
         {
             Expression<Func<Slot, bool>> expr = request => true;
 
-            if(!filter.Month.HasValue && !filter.Day.HasValue && !filter.Year.HasValue)
+            if (!filter.StartDate.HasValue)
             {
                 var filterDate = DateTime.UtcNow.Date;
-                expr = expr.AndAlso(slot => slot.SlotDate >= filterDate);
+                expr = expr.AndAlso(slot => slot.DateTime >= filterDate);
             }
-
-            if (filter.Year.HasValue)
-                expr = expr.AndAlso(slot => slot.Year == filter.Year);
-
-            if (filter.Month.HasValue)
-                expr = expr.AndAlso(slot => slot.Month == filter.Month);
-
-            if (filter.Day.HasValue)
-                expr = expr.AndAlso(slot => slot.Day == filter.Day);
+            else
+                expr = expr.AndAlso(slot => slot.DateTime >= ((DateTime)filter.StartDate).Date);
 
             if (filter.VacancyId.HasValue)
                 expr = expr.AndAlso(slot => slot.VacancyId == filter.VacancyId);
@@ -91,7 +84,7 @@ namespace TinkoffWatcher_Api.Controllers
                 return BadRequest(ModelState);
 
             var slotEntity = _mapper.Map<Slot>(model);
-            slotEntity.SlotDate = new DateTime(model.Year,model.Month, model.Day);
+            slotEntity.DateTime = model.DateTime;
 
             _context.Add(slotEntity);
             await _context.SaveChangesAsync();
@@ -112,7 +105,7 @@ namespace TinkoffWatcher_Api.Controllers
                 return NotFound();
 
             slotEntity = _mapper.Map(model, slotEntity);
-            slotEntity.SlotDate = new DateTime(model.Year, model.Month, model.Day);
+            slotEntity.DateTime = model.DateTime;
 
             _context.Update(slotEntity);
             await _context.SaveChangesAsync();

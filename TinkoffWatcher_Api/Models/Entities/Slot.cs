@@ -6,12 +6,7 @@ namespace TinkoffWatcher_Api.Models.Entities
 {
     public class Slot : BaseEntity
     {
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int Day { get; set; }
-        public int Hour { get; set; }
-        public int Minute { get; set; }
-        public DateTime SlotDate { get; set; }
+        public DateTime DateTime { get; set; }
 
         /// <summary>
         /// В минутах
