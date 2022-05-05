@@ -41,7 +41,7 @@ namespace TinkoffWatcher_Api.Data
         public DbSet<Mark> Marks { get; set; }
         public DbSet<Slot> Slots { get; set; }
         public DbSet<WorkExperience> WorkExperiences { get; set; }
-
+        public DbSet<SubscriberToCompany> SubscriberToCompanies { get; set; }
 
         public override int SaveChanges()
         {

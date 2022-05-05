@@ -25,6 +25,8 @@ namespace TinkoffWatcher_Api.Models
                 
         public Guid? CompanyId { get; set; }
         public virtual Company Company { get; set; }
+
+        public virtual ICollection<SubscriberToCompany> Subscriptions { get; set; }
         public string Post { get; set; }
 
         public virtual ICollection<Mark> MarksAsStudent { get; set; }
