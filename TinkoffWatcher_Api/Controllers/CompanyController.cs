@@ -62,6 +62,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
         public async Task<IActionResult> Create([FromBody] CompanyEditDto companyDto)
         {
             if (!ModelState.IsValid)
@@ -86,6 +87,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
         public async Task<IActionResult> Put(Guid id, [FromBody] CompanyEditDto companyDto)
         {
             if (!ModelState.IsValid)
@@ -114,6 +116,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
@@ -165,6 +168,7 @@ namespace TinkoffWatcher_Api.Controllers
                 
         [HttpPost]
         [Route("{id}/Employees")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
         public async Task<IActionResult> AddEmployee(Guid id, [FromBody] EmployeeEditDto employeeEditDto)
         {
             var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
@@ -191,6 +195,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}/Employees/{userId}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
         public async Task<IActionResult> RemoveEmployee(Guid id, Guid userId)
         {
             var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
@@ -244,9 +249,11 @@ namespace TinkoffWatcher_Api.Controllers
             }
         }
 
+
         [HttpPost]
         [Route("{id}/Unsubscribe")]
         public async Task<IActionResult> UnsubscribeToCompany(Guid id)
+
         {
             var httpContext = _httpContextAccessor.HttpContext;
 

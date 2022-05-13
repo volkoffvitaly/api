@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.Interview;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -38,6 +39,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpGet]
         [Route("{id}/Feedbacks")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> GetFeedbacks(Guid id)
         {
             var interviewEntity = await _context.Interviews.FirstOrDefaultAsync(x => x.Id == id);
@@ -61,6 +63,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Create([FromBody] InterviewEditDto model)
         {
             if (!ModelState.IsValid)
@@ -84,6 +87,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Put(Guid id, [FromBody] InterviewEditDto model)
         {
             if (!ModelState.IsValid)
@@ -112,6 +116,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var interviewEntity = await _context.Interviews.FirstOrDefaultAsync(x => x.Id == id);
