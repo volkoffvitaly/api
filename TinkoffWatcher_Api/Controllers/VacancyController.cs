@@ -46,7 +46,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Interviews")]
         public async Task<IActionResult> GetInterviews(Guid id)
         {
-            var vacancyEntity = await _context.Vacancies.Include(x => x.Interviews).ThenInclude(x => x.Student).FirstOrDefaultAsync(x => x.Id == id);
+            var vacancyEntity = await _context.Vacancies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (vacancyEntity == null)
                 return NotFound();

@@ -3,20 +3,22 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TinkoffWatcher_Api.Data;
 
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220505075306_SlotsDatesFormatEdited")]
+    partial class SlotsDatesFormatEdited
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.16")
+                .HasAnnotation("ProductVersion", "5.0.15")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -512,27 +514,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.ToTable("Slots");
                 });
 
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.SubscriberToCompany", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubscriberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("SubscriberId");
-
-                    b.ToTable("SubscriberToCompany");
-                });
-
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.UsefulLink", b =>
                 {
                     b.Property<Guid>("Id")
@@ -783,25 +764,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("Vacancy");
                 });
 
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.SubscriberToCompany", b =>
-                {
-                    b.HasOne("TinkoffWatcher_Api.Models.Entities.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TinkoffWatcher_Api.Models.ApplicationUser", "Subscriber")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("SubscriberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Subscriber");
-                });
-
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.UsefulLink", b =>
                 {
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.Cv", "Cv")
@@ -842,8 +804,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("MarksAsAgent");
 
                     b.Navigation("MarksAsStudent");
-
-                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Company", b =>

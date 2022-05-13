@@ -29,12 +29,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var CvEntities = await _context.Cvs
-                .Include(cv => cv.LanguageProficiencies)
-                    .ThenInclude(lp => lp.Language)
-                .Include(cv => cv.UsefulLinks)
-                .Include(cv => cv.WorkExperiences)
-                .ToListAsync();
+            var CvEntities = await _context.Cvs.ToListAsync();
 
             var mapped = new List<CvDto>();
             foreach(var cv in CvEntities)
@@ -50,12 +45,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var CvEntity = await _context.Cvs
-                .Include(cv => cv.LanguageProficiencies)
-                    .ThenInclude(lp => lp.Language)
-                .Include(cv => cv.UsefulLinks)
-                .Include(cv => cv.WorkExperiences)
-                .FirstOrDefaultAsync(cv => cv.Id == id);
+            var CvEntity = await _context.Cvs.FirstOrDefaultAsync(cv => cv.Id == id);
 
             var CvDto = _mapper.Map<CvDto>(CvEntity);
 
@@ -199,8 +189,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{cvId}/WorkExperience/{id}")]
         public async Task<IActionResult> RemoveWorkExperience(Guid cvId, Guid id)
         {
-            var cvEntity = await _context.Cvs
-                .Include(cv => cv.WorkExperiences).FirstOrDefaultAsync(x => x.Id == cvId);
+            var cvEntity = await _context.Cvs.FirstOrDefaultAsync(x => x.Id == cvId);
 
             if (cvEntity == null)
                 return NotFound();
@@ -227,8 +216,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{cvId}/UsefulLink/{id}")]
         public async Task<IActionResult> RemoveUsefulLink(Guid cvId, Guid id)
         {
-            var cvEntity = await _context.Cvs
-                .Include(cv => cv.UsefulLinks).FirstOrDefaultAsync(x => x.Id == cvId);
+            var cvEntity = await _context.Cvs.FirstOrDefaultAsync(x => x.Id == cvId);
 
             if (cvEntity == null)
                 return NotFound();
@@ -255,8 +243,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{cvId}/LanguageProficiency/{id}")]
         public async Task<IActionResult> RemoveLanguageProficiency(Guid cvId, Guid id)
         {
-            var cvEntity = await _context.Cvs
-                .Include(cv => cv.LanguageProficiencies).FirstOrDefaultAsync(x => x.Id == cvId);
+            var cvEntity = await _context.Cvs.FirstOrDefaultAsync(x => x.Id == cvId);
 
             if (cvEntity == null)
                 return NotFound();

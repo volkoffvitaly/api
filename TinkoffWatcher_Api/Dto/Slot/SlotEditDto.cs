@@ -9,9 +9,7 @@ namespace TinkoffWatcher_Api.Dto.Slot
 {
     public class SlotEditDto
     {
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int Day { get; set; }
+        public DateTime DateTime { get; set; }
 
         /// <summary>
         /// В минутах

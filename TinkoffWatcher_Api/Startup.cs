@@ -56,7 +56,9 @@ namespace TinkoffWatcher_Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Internship_Api", Version = "v1" });
             });
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+            );
 
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {

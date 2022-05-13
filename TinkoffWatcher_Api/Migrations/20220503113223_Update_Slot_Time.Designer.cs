@@ -3,20 +3,22 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TinkoffWatcher_Api.Data;
 
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220503113223_Update_Slot_Time")]
+    partial class Update_Slot_Time
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.16")
+                .HasAnnotation("ProductVersion", "5.0.15")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -226,9 +228,6 @@ namespace TinkoffWatcher_Api.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Post")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -488,8 +487,8 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
@@ -497,11 +496,26 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<DateTimeOffset?>("EditedDate")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("Hour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Minute")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SlotDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid?>("StudentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("VacancyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -510,27 +524,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.HasIndex("VacancyId");
 
                     b.ToTable("Slots");
-                });
-
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.SubscriberToCompany", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubscriberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("SubscriberId");
-
-                    b.ToTable("SubscriberToCompany");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.UsefulLink", b =>
@@ -783,25 +776,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("Vacancy");
                 });
 
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.SubscriberToCompany", b =>
-                {
-                    b.HasOne("TinkoffWatcher_Api.Models.Entities.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TinkoffWatcher_Api.Models.ApplicationUser", "Subscriber")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("SubscriberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Subscriber");
-                });
-
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.UsefulLink", b =>
                 {
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.Cv", "Cv")
@@ -842,8 +816,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("MarksAsAgent");
 
                     b.Navigation("MarksAsStudent");
-
-                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Company", b =>

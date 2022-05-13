@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +23,18 @@ namespace TinkoffWatcher_Api.Controllers
     [Authorize]
     public class CompanyController : Controller
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
-        public CompanyController(ApplicationDbContext context, IMapper mapper)
+        public CompanyController(IHttpContextAccessor httpContextAccessor,
+            ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            IMapper mapper)
         {
+            _httpContextAccessor = httpContextAccessor;
             _context = context;
+            _userManager = userManager;
             _mapper = mapper;
         }
 
@@ -74,6 +83,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             return Ok();
         }
+                
 
         [HttpPut]
         [Route("{id}")]
@@ -131,7 +141,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Vacancies")]
         public async Task<IActionResult> GetVacancies(Guid id)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Vacancies).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound();
@@ -146,7 +156,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Employees")]
         public async Task<IActionResult> GetEmployees(Guid id)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
             if (companyEntity == null)
                 return NotFound();
@@ -155,30 +165,30 @@ namespace TinkoffWatcher_Api.Controllers
 
             return Ok(fullUserInfoDtos);
         }
-
+                
         [HttpPost]
         [Route("{id}/Employees")]
         [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
-        public async Task<IActionResult> CreateEmployee(Guid id, [FromBody] EmployeeEditDto employeeEditDto)
+        public async Task<IActionResult> AddEmployee(Guid id, [FromBody] EmployeeEditDto employeeEditDto)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (companyEntity == null)
+                return NotFound("Company wasn't found. Id: " + id);
+
             var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == employeeEditDto.UserId);
 
-            if (companyEntity == null || userEntity == null)
-                return NotFound();
+            if (userEntity == null)
+                return NotFound("User wasn't found. Id: " + employeeEditDto.UserId);
 
-            if (companyEntity.Employees.Any(x => x.Id == userEntity.Id))
-                return Conflict();
+            if (companyEntity.Employees.Select(x => x.Id).Contains(employeeEditDto.UserId))
+                return Conflict("User with such Id attached to this Company already. Id: " + employeeEditDto.UserId);
 
-            try
-            {
-                companyEntity.Employees.Add(userEntity);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            userEntity.Company = companyEntity;
+            userEntity.Post = employeeEditDto.Post;
+
+            _context.Update(userEntity);
+            await _context.SaveChangesAsync();
 
             return Ok();
         }
@@ -186,25 +196,88 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpDelete]
         [Route("{id}/Employees/{userId}")]
         [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
-        public async Task<IActionResult> DeleteEmployee(Guid id, Guid userId)
+        public async Task<IActionResult> RemoveEmployee(Guid id, Guid userId)
         {
-            var companyEntity = await _context.Companies.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id);
-            var userEntity = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (companyEntity == null || userEntity == null || !companyEntity.Employees.Any(x => x.Id == userEntity.Id))
-                return NotFound();
+            if (companyEntity == null)
+                return NotFound("Company wasn't found. Id: " + id);
+
+            var userEntity = companyEntity.Employees.FirstOrDefault(x => x.Id == userId);
+
+            if (userEntity == null)
+                return NotFound("User wasn't found. Id: " + userId);
+
+            companyEntity.Employees.Remove(userEntity);
+            _context.Update(companyEntity);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{id}/Subscribe")]
+        public async Task<IActionResult> SubscribeToCompany (Guid id)
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+
+            var aspNetUser = await _userManager.GetUserAsync(httpContext.User);
+            if (aspNetUser == null)
+            {
+                //НУ тут надо приделать нормальное сообщение о том, что юзер не ровный поцик
+                throw new Exception("Strange user");
+            }
 
             try
             {
-                companyEntity.Employees.Remove(userEntity);
+                var subscription = new SubscriberToCompany();
+                var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
+
+                if(aspNetUser.Subscriptions == null)
+                {
+                    aspNetUser.Subscriptions = new List<SubscriberToCompany>();
+                }
+                subscription.Company = companyEntity;
+                aspNetUser.Subscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
+                return Ok(aspNetUser);
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                //Надо будет других катчей накинуть
+                throw new Exception();
+            }
+        }
+
+
+        [HttpPost]
+        [Route("{id}/Unsubscribe")]
+        public async Task<IActionResult> UnsubscribeToCompany(Guid id)
+
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+
+            var aspNetUser = await _userManager.GetUserAsync(httpContext.User);
+            if (aspNetUser == null)
+            {
+                //НУ тут надо приделать нормальное сообщение о том, что юзер не ровный поцик
+                throw new Exception("Strange user");
             }
 
-            return Ok();
+            try
+            {
+                var subscription = _context.SubscriberToCompanies
+                    .FirstOrDefaultAsync(x => x.SubscriberId == aspNetUser.Id && x.CompanyId == id);
+
+                _context.Remove(subscription);
+                await _context.SaveChangesAsync();
+                return Ok(aspNetUser);
+            }
+            catch
+            {
+                //Надо будет других катчей накинуть
+                throw new Exception();
+            }
         }
     }
 }

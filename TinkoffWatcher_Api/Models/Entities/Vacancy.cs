@@ -11,9 +11,9 @@ namespace TinkoffWatcher_Api.Models.Entities
         public int PositionAmount { get; set; }
 
         public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
+        public virtual Company Company { get; set; }
 
-        public ICollection<Interview> Interviews { get; set; }
-        public ICollection<Slot> Slots { get; set; }
+        public virtual ICollection<Interview> Interviews { get; set; }
+        public virtual ICollection<Slot> Slots { get; set; }
 }
 }

@@ -31,10 +31,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var interviewEntities = _context.Interviews
-                .Include(_ => _.Student)
-                .Include(_ => _.Feedbacks)
-                .Include(_ => _.Agents);
+            var interviewEntities = _context.Interviews;
             var interviewDtos = _mapper.ProjectTo<InterviewDto>(interviewEntities);
 
             return Ok(interviewDtos);
@@ -45,7 +42,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> GetFeedbacks(Guid id)
         {
-            var interviewEntity = await _context.Interviews.Include(_ => _.Feedbacks).FirstOrDefaultAsync(x => x.Id == id);
+            var interviewEntity = await _context.Interviews.FirstOrDefaultAsync(x => x.Id == id);
             var feedbacksDtos = _mapper.Map<List<FeedbackDto>>(interviewEntity.Feedbacks);
 
             return Ok(feedbacksDtos);
@@ -55,11 +52,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var interviewEntity = await _context.Interviews
-                .Include(_ => _.Student)
-                .Include(_ => _.Feedbacks)
-                .Include(_ => _.Agents)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var interviewEntity = await _context.Interviews.FirstOrDefaultAsync(x => x.Id == id);
 
             if (interviewEntity == null)
                 return NotFound();
