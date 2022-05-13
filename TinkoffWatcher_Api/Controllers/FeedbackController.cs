@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -15,6 +16,7 @@ namespace TinkoffWatcher_Api.Controllers
     [Route("Api/[controller]")]
     [ApiController]
     [Authorize]
+    [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
     public class FeedbackController : Controller
     {
         private readonly ApplicationDbContext _context;

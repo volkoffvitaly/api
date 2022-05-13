@@ -18,6 +18,7 @@ using TinkoffWatcher_Api.Dto.Slot;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Extensions;
 using TinkoffWatcher_Api.Filters;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -80,6 +81,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Create([FromBody] SlotEditDto model)
         {
             if (!ModelState.IsValid)
@@ -95,6 +97,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Put(Guid id, [FromBody] SlotEditDto model)
         {
             if (!ModelState.IsValid)
@@ -115,6 +118,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var slotEntity = await _context.Slots.FirstOrDefaultAsync(x => x.Id == id);

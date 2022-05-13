@@ -54,6 +54,7 @@ namespace TinkoffWatcher_Api.Controllers
         /// </summary>
         /// <param name="token">Токен</param>
         [HttpGet("StudentMarks")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
         public async Task<IActionResult> GetMarksAsStudent(Guid id)
         {
             var user = await _context.Users
@@ -73,6 +74,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet("AgentMarks")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> GetMarksAsAgent(Guid id)
         {
             var user = await _context.Users
@@ -155,6 +157,7 @@ namespace TinkoffWatcher_Api.Controllers
         
         [HttpGet]
         [Route("Roles")]
+        [Authorize(Roles = ApplicationRoles.Administrators)]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _context.Roles.Select(_ => _.Name).ToListAsync();
@@ -163,6 +166,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPost]
         [Route("{id}/Role")]
+        [Authorize(Roles = ApplicationRoles.Administrators)]
         public async Task<IActionResult> AddToRole(Guid id, string role)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
@@ -187,6 +191,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}/Role")]
+        [Authorize(Roles = ApplicationRoles.Administrators)]
         public async Task<IActionResult> RemoveFromRole(Guid id, string role)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
