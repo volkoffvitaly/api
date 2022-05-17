@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TinkoffWatcher_Api.Data;
 
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220517152358_addCharacteristicType")]
+    partial class addCharacteristicType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,41 +282,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Characteristic", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CharacteristicTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CharacteristicValueId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("EditedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("MarkId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Other")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacteristicTypeId");
-
-                    b.HasIndex("CharacteristicValueId");
-
-                    b.HasIndex("MarkId");
-
-                    b.ToTable("Characteristics");
-                });
-
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -341,7 +308,7 @@ namespace TinkoffWatcher_Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CharacteristicTypes");
+                    b.ToTable("CharacteristicType");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", b =>
@@ -550,9 +517,6 @@ namespace TinkoffWatcher_Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AdditionalComment")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -562,7 +526,7 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<DateTimeOffset?>("EditedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("OverallMark")
+                    b.Property<string>("Review")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Semester")
@@ -820,33 +784,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Characteristic", b =>
-                {
-                    b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicType", "CharacteristicType")
-                        .WithMany()
-                        .HasForeignKey("CharacteristicTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", "CharacteristicValue")
-                        .WithMany()
-                        .HasForeignKey("CharacteristicValueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TinkoffWatcher_Api.Models.Entities.Mark", "Mark")
-                        .WithMany("Characteristics")
-                        .HasForeignKey("MarkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CharacteristicType");
-
-                    b.Navigation("CharacteristicValue");
-
-                    b.Navigation("Mark");
-                });
-
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", b =>
                 {
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicType", "CharacteristicType")
@@ -1037,11 +974,6 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("Agents");
 
                     b.Navigation("Feedbacks");
-                });
-
-            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Mark", b =>
-                {
-                    b.Navigation("Characteristics");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Vacancy", b =>

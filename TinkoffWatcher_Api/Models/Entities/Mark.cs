@@ -9,10 +9,12 @@ namespace TinkoffWatcher_Api.Models.Entities
     public class Mark : BaseEntity
     {
         public int Value { get; set; }
-        public string Review { get; set; }
-
+        public string OverallMark { get; set; }
+        public string AdditionalComment { get; set; } 
         public int Year { get; set; }
         public SemesterEnum Semester { get; set; }
+
+        public virtual ICollection<Characteristic> Characteristics { get; set; }
 
         [ForeignKey(nameof(Student))]
         public Guid StudentId { get; set; }
