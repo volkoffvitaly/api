@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
@@ -17,7 +18,7 @@ using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Filters;
 using TinkoffWatcher_Api.Models;
-using TinkoffWatcher_Api.Models.Entities;
+using Xceed.Words.NET;
 
 namespace TinkoffWatcher_Api.Controllers
 {
@@ -30,15 +31,19 @@ namespace TinkoffWatcher_Api.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        public UserController(ApplicationDbContext context,
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public UserController(
+            ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IMapper mapper, 
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _userManager = userManager;
             _mapper = mapper;
             _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -247,6 +252,51 @@ namespace TinkoffWatcher_Api.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("{id}/PracticeDiary")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.Student + "," + ApplicationRoles.SchoolAgent)]
+        public async Task<IActionResult> GetPracticeDiary(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user == null)
+                return NotFound($"User with id: {id} isn't exist");
+
+            if (user.Company == null)
+                return BadRequest($"User with id: {id} isn't intern");
+
+            var templateFilePath = Path.Combine(
+                _webHostEnvironment.WebRootPath, 
+                _configuration["WwwrootPathKeys:Files"], 
+                _configuration["WwwrootPathKeys:PracticeDiaryTemplate"]
+            );
+
+            var copyFilePath = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                _configuration["WwwrootPathKeys:Files"],
+                Guid.NewGuid().ToString() + ".docx"
+            );
+
+            System.IO.File.Copy(templateFilePath, copyFilePath);
+
+            var doc = DocX.Load(copyFilePath);
+
+            doc.ReplaceText(_configuration["PracticeDiary:StudentFCsKeywords"], user.FCs);
+            //doc.ReplaceText(_configuration["PracticeDiary:GradeKeywords"], "******"); // user.Grade + " курс", обсудить
+            doc.ReplaceText(_configuration["PracticeDiary:CompanyFullNameKeywords"], user.Company.Name);
+            //doc.ReplaceText(_configuration["PracticeDiary:OrderKeywords"], "******"); // обсудить
+            //doc.ReplaceText(_configuration["PracticeDiary:ManagerFCsKeywords"], "******"); // обсудить
+            doc.Save();
+
+            var file = System.IO.File.ReadAllBytes(copyFilePath);
+            System.IO.File.Delete(copyFilePath);
+
+            return File(file, 
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+                $"Дневник практики ({user.FCs}, X курс, X семестр).docx"
+            );
         }
     }
 }
