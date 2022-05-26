@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TinkoffWatcher_Api.Data;
 
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220517161930_UpdateMark")]
+    partial class UpdateMark
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,10 +288,10 @@ namespace TinkoffWatcher_Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CharacteristicTypeId")
+                    b.Property<Guid>("CharacteristicTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CharacteristicValueId")
+                    b.Property<Guid>("CharacteristicValueId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
@@ -298,7 +300,7 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<DateTimeOffset?>("EditedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid?>("MarkId")
+                    b.Property<Guid>("MarkId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Other")
@@ -824,15 +826,21 @@ namespace TinkoffWatcher_Api.Migrations
                 {
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicType", "CharacteristicType")
                         .WithMany()
-                        .HasForeignKey("CharacteristicTypeId");
+                        .HasForeignKey("CharacteristicTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", "CharacteristicValue")
                         .WithMany()
-                        .HasForeignKey("CharacteristicValueId");
+                        .HasForeignKey("CharacteristicValueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.Mark", "Mark")
                         .WithMany("Characteristics")
-                        .HasForeignKey("MarkId");
+                        .HasForeignKey("MarkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CharacteristicType");
 

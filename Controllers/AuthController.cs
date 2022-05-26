@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,12 +24,14 @@ namespace TinkoffWatcher_Api.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        protected readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AuthController(
+        public AuthController(SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration)
         {
+            _signInManager = signInManager;
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
@@ -137,6 +140,14 @@ namespace TinkoffWatcher_Api.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
     }
 }
 

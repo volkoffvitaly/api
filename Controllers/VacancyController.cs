@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +10,14 @@ using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Interview;
 using TinkoffWatcher_Api.Dto.Vacancy;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
 {
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize]
     public class VacancyController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -54,6 +57,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Create([FromBody] VacancyEditDto model)
         {
             if (!ModelState.IsValid)
@@ -77,6 +81,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Put(Guid id, [FromBody] VacancyEditDto model)
         {
             if (!ModelState.IsValid)
@@ -105,6 +110,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var vacancyEntity = await _context.Vacancies.FirstOrDefaultAsync(x => x.Id == id);

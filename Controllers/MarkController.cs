@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,12 +17,14 @@ using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Extensions;
 using TinkoffWatcher_Api.Filters;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
 {
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MarkController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -74,6 +77,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Create([FromBody] MarkEditDto model)
         {
             if (!ModelState.IsValid)
@@ -89,6 +93,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Put(Guid id, [FromBody] MarkEditDto model)
         {
             if (!ModelState.IsValid)
@@ -109,6 +114,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var markEntity = await _context.Marks.FirstOrDefaultAsync(x => x.Id == id);
