@@ -10,8 +10,8 @@ using TinkoffWatcher_Api.Data;
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220505215431_Add_CompanySubscriptions")]
-    partial class Add_CompanySubscriptions
+    [Migration("20220517161930_UpdateMark")]
+    partial class UpdateMark
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -282,6 +282,110 @@ namespace TinkoffWatcher_Api.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Characteristic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacteristicTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacteristicValueId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("EditedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("MarkId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Other")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacteristicTypeId");
+
+                    b.HasIndex("CharacteristicValueId");
+
+                    b.HasIndex("MarkId");
+
+                    b.ToTable("Characteristics");
+                });
+
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("EditedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("VersionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CharacteristicTypes");
+                });
+
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacteristicTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("EditedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("VersionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacteristicTypeId");
+
+                    b.ToTable("CharacteristicValues");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("CharacteristicValue");
+                });
+
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Company", b =>
                 {
                     b.Property<Guid>("Id")
@@ -448,6 +552,9 @@ namespace TinkoffWatcher_Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AdditionalComment")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -457,7 +564,7 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<DateTimeOffset?>("EditedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Review")
+                    b.Property<string>("OverallMark")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Semester")
@@ -532,7 +639,7 @@ namespace TinkoffWatcher_Api.Migrations
 
                     b.HasIndex("SubscriberId");
 
-                    b.ToTable("SubscriberToCompany");
+                    b.ToTable("SubscriberToCompanies");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.UsefulLink", b =>
@@ -631,6 +738,26 @@ namespace TinkoffWatcher_Api.Migrations
                     b.ToTable("WorkExperiences");
                 });
 
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicBoolValue", b =>
+                {
+                    b.HasBaseType("TinkoffWatcher_Api.Models.Entities.CharacteristicValue");
+
+                    b.Property<bool?>("BoolValue")
+                        .HasColumnType("bit");
+
+                    b.HasDiscriminator().HasValue("CharacteristicBoolValue");
+                });
+
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicIntValue", b =>
+                {
+                    b.HasBaseType("TinkoffWatcher_Api.Models.Entities.CharacteristicValue");
+
+                    b.Property<int?>("IntValue")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("CharacteristicIntValue");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("TinkoffWatcher_Api.Models.ApplicationRole", null)
@@ -693,6 +820,44 @@ namespace TinkoffWatcher_Api.Migrations
                         .HasForeignKey("InterviewId");
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Characteristic", b =>
+                {
+                    b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicType", "CharacteristicType")
+                        .WithMany()
+                        .HasForeignKey("CharacteristicTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", "CharacteristicValue")
+                        .WithMany()
+                        .HasForeignKey("CharacteristicValueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TinkoffWatcher_Api.Models.Entities.Mark", "Mark")
+                        .WithMany("Characteristics")
+                        .HasForeignKey("MarkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CharacteristicType");
+
+                    b.Navigation("CharacteristicValue");
+
+                    b.Navigation("Mark");
+                });
+
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", b =>
+                {
+                    b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicType", "CharacteristicType")
+                        .WithMany("CharacteristicValues")
+                        .HasForeignKey("CharacteristicTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CharacteristicType");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Cv", b =>
@@ -848,6 +1013,11 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("Subscriptions");
                 });
 
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.CharacteristicType", b =>
+                {
+                    b.Navigation("CharacteristicValues");
+                });
+
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Company", b =>
                 {
                     b.Navigation("Employees");
@@ -869,6 +1039,11 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Navigation("Agents");
 
                     b.Navigation("Feedbacks");
+                });
+
+            modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Mark", b =>
+                {
+                    b.Navigation("Characteristics");
                 });
 
             modelBuilder.Entity("TinkoffWatcher_Api.Models.Entities.Vacancy", b =>

@@ -42,6 +42,11 @@ namespace TinkoffWatcher_Api.Data
         public DbSet<Slot> Slots { get; set; }
         public DbSet<WorkExperience> WorkExperiences { get; set; }
         public DbSet<SubscriberToCompany> SubscriberToCompanies { get; set; }
+        public DbSet<CharacteristicValue> CharacteristicValues { get; set; }
+        public DbSet<CharacteristicBoolValue> CharacteristicBoolValues { get; set; }
+        public DbSet<CharacteristicIntValue> CharacteristicIntValues { get; set; }
+        public DbSet<CharacteristicType> CharacteristicTypes { get; set; }
+        public DbSet<Characteristic> Characteristics { get; set; }
 
         public override int SaveChanges()
         {
