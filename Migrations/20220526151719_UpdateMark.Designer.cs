@@ -10,7 +10,7 @@ using TinkoffWatcher_Api.Data;
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220517161930_UpdateMark")]
+    [Migration("20220526151719_UpdateMark")]
     partial class UpdateMark
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -288,10 +288,10 @@ namespace TinkoffWatcher_Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CharacteristicTypeId")
+                    b.Property<Guid?>("CharacteristicTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CharacteristicValueId")
+                    b.Property<Guid?>("CharacteristicValueId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
@@ -300,7 +300,7 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<DateTimeOffset?>("EditedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("MarkId")
+                    b.Property<Guid?>("MarkId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Other")
@@ -826,21 +826,15 @@ namespace TinkoffWatcher_Api.Migrations
                 {
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicType", "CharacteristicType")
                         .WithMany()
-                        .HasForeignKey("CharacteristicTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CharacteristicTypeId");
 
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.CharacteristicValue", "CharacteristicValue")
                         .WithMany()
-                        .HasForeignKey("CharacteristicValueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CharacteristicValueId");
 
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.Mark", "Mark")
                         .WithMany("Characteristics")
-                        .HasForeignKey("MarkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MarkId");
 
                     b.Navigation("CharacteristicType");
 

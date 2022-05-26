@@ -93,9 +93,9 @@ namespace TinkoffWatcher_Api.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Other = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CharacteristicTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CharacteristicValueId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MarkId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CharacteristicTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CharacteristicValueId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    MarkId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     EditedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
@@ -107,19 +107,19 @@ namespace TinkoffWatcher_Api.Migrations
                         column: x => x.CharacteristicTypeId,
                         principalTable: "CharacteristicTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Characteristics_CharacteristicValues_CharacteristicValueId",
                         column: x => x.CharacteristicValueId,
                         principalTable: "CharacteristicValues",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Characteristics_Marks_MarkId",
                         column: x => x.MarkId,
                         principalTable: "Marks",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
