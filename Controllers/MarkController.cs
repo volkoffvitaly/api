@@ -262,7 +262,7 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("CharacteristicType/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> EditCharacteristicType(Guid id,CharacteristicTypeDto model)
@@ -286,22 +286,40 @@ namespace TinkoffWatcher_Api.Controllers
                 var charasteristicValues = new List<CharacteristicValue>();
                 foreach (var value in model.CharacteristicValues)
                 {
-                    if (value.BoolValue != null)
+                    var valueEntity = characteristicTypeEntity.CharacteristicValues.FirstOrDefault(_ => _.Id == value.Id);
+                    if(valueEntity == null)
                     {
-                        charasteristicValues.Add(new CharacteristicBoolValue()
-                        {
-                            BoolValue = value.BoolValue,
-                            Description = value.Description
-                        });
+                        charasteristicValues.Add(value.BoolValue != null ? 
+                            new CharacteristicBoolValue()
+                            {
+                                BoolValue = value.BoolValue,
+                                Description = value.Description
+                            } 
+                            : 
+                            new CharacteristicIntValue()
+                            {
+                                IntValue = value.IntValue,
+                                Description = value.Description
+                            });
                     }
                     else
                     {
-                        charasteristicValues.Add(new CharacteristicIntValue()
+                        if(valueEntity is CharacteristicBoolValue)
                         {
-                            IntValue = value.IntValue,
-                            Description = value.Description
-                        });
+                            var newValue = (CharacteristicBoolValue)valueEntity.Clone();
+                            newValue.BoolValue = value.BoolValue;
+                            newValue.Description = value.Description;
+                            charasteristicValues.Add(newValue);
+                        }
+                        else
+                        {
+                            var newValue = (CharacteristicIntValue)valueEntity.Clone();
+                            newValue.IntValue = value.IntValue;
+                            newValue.Description = value.Description;
+                            charasteristicValues.Add(newValue);
+                        }
                     }
+                    
                 }
 
                 characteristicTypeEntity.Name = model.Name;
