@@ -21,8 +21,6 @@ namespace TinkoffWatcher_Api.Models.Auth
         [StringLength(64, ErrorMessage = "Длина пароля должна быть не менее {2} и не более {1} символов", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Пароль")]
-        [RegularExpression("([0-9][A-Za-z0-9]*[A-Z][A-Za-z0-9]*[a-z])|([0-9][A-Za-z0-9]*[a-z][A-Za-z0-9]*[A-Z])|([A-Z][A-Za-z0-9]*[0-9][A-Za-z0-9]*[a-z])|([A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*[0-9])|([a-z][A-Za-z0-9]*[A-Z][A-Za-z0-9]*[0-9])|([a-z][A-Za-z0-9]*[0-9][A-Za-z0-9]*[A-Z])",
-            ErrorMessage = "Пароль должен содержать как минимум одну заглавную латинскую букву, строчную и цифру. Другие символы не разрешены")]
         public string Password { get; set; }
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "Поле \"Подтвердите пароль\" обязательно для заполнения")]
