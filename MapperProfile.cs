@@ -6,6 +6,7 @@ using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.Cv;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.Interview;
+using TinkoffWatcher_Api.Dto.Mark;
 using TinkoffWatcher_Api.Dto.Slot;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Dto.Vacancy;
@@ -74,6 +75,25 @@ namespace TinkoffWatcher_Api
                 .ForMember(cv => cv.WorkExperiences, opt => opt.MapFrom(x => x.WorkExperiences))
                 .ForMember(cv => cv.UsefulLinks, opt => opt.MapFrom(x => x.UsefulLinks))
                 .ForMember(cv => cv.LanguageProficiencies, opt => opt.MapFrom(x => x.LanguageProficiencies));
+
+            CreateMap<CharacteristicValue, CharacteristicValueDto>();
+
+            CreateMap<CharacteristicBoolValue, CharacteristicValueDto>()
+                .IncludeBase< CharacteristicValue, CharacteristicValueDto>();
+            CreateMap<CharacteristicIntValue, CharacteristicValueDto>()
+                .IncludeBase<CharacteristicValue, CharacteristicValueDto>();
+
+
+            CreateMap<CharacteristicType, CharacteristicTypeDto>()
+                .ForMember(_ => _.CharacteristicValues, opt => opt.MapFrom(x => x.CharacteristicValues));
+
+            CreateMap<Characteristic, CharacteristicDto>()
+                .ForMember(_ => _.CharacteristicType, opt => opt.MapFrom(x => x.CharacteristicType));
+
+            CreateMap<CharacteristicValueDto, CharacteristicIntValue>();
+            CreateMap<CharacteristicValueDto, CharacteristicBoolValue>();
+
+            CreateMap<CharacteristicTypeDto, CharacteristicType>();
         }
     }
 }
