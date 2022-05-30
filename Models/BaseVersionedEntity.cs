@@ -8,6 +8,7 @@ namespace TinkoffWatcher_Api.Models
 {
     public class BaseVersionedEntity : BaseEntity, ICloneable
     {
+        public bool IsDeleted { get; set; }
         public int Version { get; set; }
         public bool IsCurrent { get; set; }
         public DateTime VersionDate { get; set; }

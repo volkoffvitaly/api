@@ -75,6 +75,12 @@ namespace TinkoffWatcher_Api.Data
                     case EntityState.Unchanged:
                         break;
                     case EntityState.Deleted:
+                        entry.State = EntityState.Modified;
+                        if(entry.Entity is BaseVersionedEntity trackedEntity)
+                        {
+                            trackedEntity.EditedDate = DateTime.UtcNow;
+                            trackedEntity.IsDeleted = true;
+                        }
                         break;
                     case EntityState.Modified:
                         if (entry.Entity is BaseEntity trackModified)
