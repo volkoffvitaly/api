@@ -200,6 +200,8 @@ namespace TinkoffWatcher_Api.Controllers
 
                 foreach (var type in characteristicTypes)
                 {
+                    type.CharacteristicValues = type.CharacteristicValues
+                        .Where(_ => _.IsCurrent && !_.IsDeleted).ToList();
                     var mapped = _mapper.Map<CharacteristicTypeDto>(type);
                     result.Add(mapped);    
                 }
@@ -357,6 +359,37 @@ namespace TinkoffWatcher_Api.Controllers
                 }
 
                 _context.CharacteristicTypes.Remove(characteristicTypeEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw new Exception("Something went wrong. May be try later");
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("CharacteristicType/{id}/{valueId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RemoveCharacteristicTypeValue(Guid id, Guid valueId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var characteristicValueEntity = await _context.CharacteristicValues
+                    .FirstOrDefaultAsync(_ => _.Id == valueId && _.CharacteristicTypeId == id);
+
+                if (characteristicValueEntity == null)
+                {
+                    return BadRequest($"Characteristic value with id={valueId} not found in DB");
+                }
+
+                _context.CharacteristicValues.Remove(characteristicValueEntity);
                 await _context.SaveChangesAsync();
             }
             catch
