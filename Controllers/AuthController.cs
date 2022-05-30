@@ -23,17 +23,20 @@ namespace TinkoffWatcher_Api.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
         protected readonly SignInManager<ApplicationUser> _signInManager;
 
         public AuthController(SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration)
+            RoleManager<ApplicationRole> roleManager,
+        IConfiguration configuration)
         {
             _signInManager = signInManager;
             _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
             _configuration = configuration;
         }
 
@@ -124,6 +127,13 @@ namespace TinkoffWatcher_Api.Controllers
                 };
                 _context.RefreshTokens.Add(newRefresh);
                 await _context.SaveChangesAsync();
+
+                var studentsRole = await _roleManager.FindByNameAsync(ApplicationRoles.Student);
+
+                if (!await _userManager.IsInRoleAsync(user, studentsRole.Name))
+                {
+                    await _userManager.AddToRoleAsync(user, studentsRole.Name);
+                }
 
                 return Ok(new
                 {
