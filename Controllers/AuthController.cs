@@ -54,7 +54,7 @@ namespace TinkoffWatcher_Api.Controllers
                 return NotFound("Пользователь не существует");
 
             if (!await _userManager.CheckPasswordAsync(user, model.Password))
-                return NotFound("Неверный пароль");
+                return BadRequest("Неверный пароль");
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
