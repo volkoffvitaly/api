@@ -46,5 +46,9 @@ namespace TinkoffWatcher_Api.Dto.User
         public bool IsTelegram { get; set; }
         public bool IsWhatsApp { get; set; }
         public bool IsViber { get; set; }
+
+        public Guid? CvId { get; set; }
+        public Guid? CompanyId { get; set; }
+        public string Post { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -31,18 +32,21 @@ namespace TinkoffWatcher_Api.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
         public UserController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IMapper mapper, 
+            SignInManager<ApplicationUser> signInManager,
+            IMapper mapper,
             IConfiguration configuration,
             IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _userManager = userManager;
+            _signInManager = signInManager;
             _mapper = mapper;
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
@@ -51,8 +55,8 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsersInfo([FromQuery] UserFilter userFilter)
         {
-            var users = string.IsNullOrWhiteSpace(userFilter.Role) ? 
-                _userManager.Users.ToList() : 
+            var users = string.IsNullOrWhiteSpace(userFilter.Role) ?
+                _userManager.Users.ToList() :
                 await _userManager.GetUsersInRoleAsync(userFilter.Role);
 
             var usersInfoDto = _mapper.Map<List<FullUserInfoDto>>(users);
@@ -114,7 +118,9 @@ namespace TinkoffWatcher_Api.Controllers
 
             return Ok(marksDtos);
         }
-                
+
+        #region Get: UserInfo/{id}
+
         [HttpGet]
         [Route("UserInfo/{id}")]
         public async Task<IActionResult> GetUserInfo(Guid id)
@@ -141,12 +147,16 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok(userInfoDto);
         }
 
+        #endregion
+
+        #region Put: UserInfo/{id}
+
         [HttpPut]
-        [Route("UserInfo")]
-        public async Task<IActionResult> UpdateUserInfo(string token, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
+        [Route("UserInfo/{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators)]
+        public async Task<IActionResult> UpdateUserInfo(Guid id, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
-            //var userRoles = await _userManager.GetRolesAsync(user);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
 
             if (user == default)
                 return NotFound();
@@ -170,30 +180,86 @@ namespace TinkoffWatcher_Api.Controllers
             return Ok(userInfoDto);
         }
 
-        private string GetUsernameFromToken(string token)
+        [HttpPut]
+        [Route("UserInfo")]
+        public async Task<IActionResult> UpdateUserInfo(string token, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
         {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"])),
-                ValidateLifetime = false
-            };
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid token");
+            if (user == default)
+                return NotFound();
 
-            var username = claimsPrincipal.Identity?.Name;
+            fullUserInfoEditDto.Email = fullUserInfoEditDto.Email?.Trim();
+            fullUserInfoEditDto.FirstName = fullUserInfoEditDto.FirstName?.Trim();
+            fullUserInfoEditDto.MiddleName = fullUserInfoEditDto.MiddleName?.Trim();
+            fullUserInfoEditDto.LastName = fullUserInfoEditDto.LastName?.Trim();
 
-            if (string.IsNullOrWhiteSpace(username))
-                throw new Exception("Token generation/validation failed");
+            var userWithSameCredentials = await _userManager.Users.FirstOrDefaultAsync(y => y.Email == fullUserInfoEditDto.Email);
 
-            return username;
+            if (userWithSameCredentials != default && userWithSameCredentials.Id != user.Id)
+                return BadRequest("Пользователь с такой электронной почтой уже существует");
+
+            user = _mapper.Map(fullUserInfoEditDto, user);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+
+            var userInfoDto = _mapper.Map<FullUserInfoDto>(user);
+            return Ok(userInfoDto);
         }
-        
+
+        #endregion
+
+        #region Delete: UserInfo/{id}
+
+        [HttpDelete]
+        [Route("UserInfo/{id}")]
+        [Authorize(Roles = ApplicationRoles.Administrators)]
+        public async Task<IActionResult> DeleteUserInfo(Guid id)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
+
+            if (user == default)
+                return NotFound();
+
+            using (var sqlCon = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                sqlCon.Open();
+
+                string query = "DELETE FROM AspNetUsers WHERE Id = @Id";
+                SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                sqlCmd.Parameters.AddWithValue("@Id", user.Id);
+                sqlCmd.ExecuteNonQuery();
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("UserInfo")]
+        public async Task<IActionResult> DeleteUserInfo(string token)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+
+            if (user == default)
+                return NotFound();
+
+            using (var sqlCon = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                sqlCon.Open();
+
+                string query = "DELETE FROM AspNetUsers WHERE Id = @Id";
+                SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                sqlCmd.Parameters.AddWithValue("@Id", user.Id);
+                sqlCmd.ExecuteNonQuery();
+            }
+
+            return Ok();
+        }
+
+        #endregion
+
+
         [HttpGet]
         [Route("Roles")]
         [Authorize(Roles = ApplicationRoles.Administrators)]
@@ -211,7 +277,7 @@ namespace TinkoffWatcher_Api.Controllers
             var user = await _userManager.FindByIdAsync(id.ToString());
             var roles = _context.Roles.Select(_ => _.Name).ToList();
 
-            if(!roles.Contains(role))
+            if (!roles.Contains(role))
             {
                 throw new ArgumentException("Wrong role name");
             }
@@ -267,8 +333,8 @@ namespace TinkoffWatcher_Api.Controllers
                 return BadRequest($"User with id: {id} isn't intern");
 
             var templateFilePath = Path.Combine(
-                _webHostEnvironment.WebRootPath, 
-                _configuration["WwwrootPathKeys:Files"], 
+                _webHostEnvironment.WebRootPath,
+                _configuration["WwwrootPathKeys:Files"],
                 _configuration["WwwrootPathKeys:PracticeDiaryTemplate"]
             );
 
@@ -292,8 +358,8 @@ namespace TinkoffWatcher_Api.Controllers
             var file = System.IO.File.ReadAllBytes(copyFilePath);
             System.IO.File.Delete(copyFilePath);
 
-            return File(file, 
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+            return File(file,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"Дневник практики ({user.FCs}, X курс, X семестр).docx"
             );
         }
@@ -358,6 +424,30 @@ namespace TinkoffWatcher_Api.Controllers
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 $"Оценки за практику ({user.FCs}, X курс, X семестр).xlsx"
             );
+        }
+
+        private string GetUsernameFromToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"])),
+                ValidateLifetime = false
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+
+            var username = claimsPrincipal.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(username))
+                throw new Exception("Token generation/validation failed");
+
+            return username;
         }
     }
 }
