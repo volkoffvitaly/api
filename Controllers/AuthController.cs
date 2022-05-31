@@ -42,6 +42,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPost]
         [Route("Login")]
+        [AllowAnonymous]
         public async Task<ActionResult<JwtInfoModel>> Login([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid)
@@ -49,8 +50,11 @@ namespace TinkoffWatcher_Api.Controllers
 
             var user = await _userManager.FindByNameAsync(model.Username);
 
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Unauthorized();
+            if (user == null)
+                return NotFound("Пользователь не существует");
+
+            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+                return NotFound("Неверный пароль");
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -79,6 +83,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPost]
         [Route("Register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
