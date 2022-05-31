@@ -32,7 +32,7 @@ namespace TinkoffWatcher_Api.Controllers
             var CvEntities = await _context.Cvs.ToListAsync();
 
             var mapped = new List<CvDto>();
-            foreach(var cv in CvEntities)
+            foreach (var cv in CvEntities)
             {
                 mapped.Add(_mapper.Map<CvDto>(cv));
             }
@@ -69,6 +69,26 @@ namespace TinkoffWatcher_Api.Controllers
             {
                 throw ex;
             }
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("{cvId}")]
+        public async Task<IActionResult> Edit(Guid cvId, [FromBody] CvCreateDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var cvEntity = _context.Cvs.FirstOrDefault(cv => cv.Id == cvId);
+
+            if (cvEntity == null)
+                return NotFound();
+
+            cvEntity = _mapper.Map(model, cvEntity);
+
+            _context.Update(cvEntity);
+            await _context.SaveChangesAsync();
 
             return Ok();
         }
