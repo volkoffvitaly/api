@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Models;
 using Newtonsoft.Json;
+using AutoMapper;
 
 namespace TinkoffWatcher_Api
 {
@@ -95,7 +96,10 @@ namespace TinkoffWatcher_Api
                 options.Password.RequiredUniqueChars = 1;
             });
 
-            services.AddAutoMapper(typeof(MapperProfile));
+            services.AddScoped(provider => new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new MapperProfile(provider.GetService<UserManager<ApplicationUser>>()));
+            }).CreateMapper());
 
             services.AddAuthentication(options =>
             {

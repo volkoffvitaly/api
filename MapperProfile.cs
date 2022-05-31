@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.Cv;
 using TinkoffWatcher_Api.Dto.Feedback;
@@ -17,13 +18,14 @@ namespace TinkoffWatcher_Api
 {
     public class MapperProfile : Profile
     {
-        public MapperProfile()
+        public MapperProfile(UserManager<ApplicationUser> _userManager)
         {
             CreateMap<FullUserInfoEditDto, ApplicationUser>();
             CreateMap<ApplicationUser, FullUserInfoDto>()
                 .ForMember(x => x.MarksAsStudent, opt => opt.MapFrom(x => x.MarksAsStudent))
                 .ForMember(x => x.MarksAsAgent, opt => opt.MapFrom(x => x.MarksAsAgent))
-                .ForMember(x => x.Company, opt => opt.MapFrom(x => x.Company));
+                .ForMember(x => x.Company, opt => opt.MapFrom(x => x.Company))
+                .ForMember(x => x.Roles, opt => opt.MapFrom(x => _userManager.GetRolesAsync(x).GetAwaiter().GetResult()));
 
             CreateMap<CompanyEditDto, Company>();
             CreateMap<Company, CompanyDto>();
