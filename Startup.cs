@@ -37,7 +37,7 @@ namespace TinkoffWatcher_Api
                     {
                         policy.WithOrigins
                         (
-                            "https://intern-track.vercel.app/",
+                            "https://cv-app-backend.herokuapp.com/",
                             "http://localhost:3000"
                         )
                         .AllowAnyHeader()
