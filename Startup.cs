@@ -37,7 +37,7 @@ namespace TinkoffWatcher_Api
                     {
                         policy.WithOrigins
                         (
-                            "https://intern-track.vercel.app/",
+                            "https://intern-track.vercel.app",
                             "http://volkoffx-002-site1.itempurl.com",
                             "http://localhost:3000"
                         )
