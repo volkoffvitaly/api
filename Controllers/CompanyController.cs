@@ -227,10 +227,9 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}/Subscribe")]
         public async Task<IActionResult> SubscribeToCompany (Guid id)
         {
-            var httpContext = _httpContextAccessor.HttpContext;
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            var aspNetUser = await _userManager.GetUserAsync(httpContext.User);
-            if (aspNetUser == null)
+            if (user == null)
             {
                 //НУ тут надо приделать нормальное сообщение о том, что юзер не ровный поцик
                 throw new Exception("Strange user");
@@ -241,14 +240,14 @@ namespace TinkoffWatcher_Api.Controllers
                 var subscription = new SubscriberToCompany();
                 var companyEntity = await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
 
-                if(aspNetUser.Subscriptions == null)
+                if(user.Subscriptions == null)
                 {
-                    aspNetUser.Subscriptions = new List<SubscriberToCompany>();
+                    user.Subscriptions = new List<SubscriberToCompany>();
                 }
                 subscription.Company = companyEntity;
-                aspNetUser.Subscriptions.Add(subscription);
+                user.Subscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
-                return Ok(aspNetUser);
+                return Ok(user);
             }
             catch
             {
