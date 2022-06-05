@@ -84,14 +84,13 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([FromBody] MarkEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var characteristicTypes = await _context.CharacteristicTypes
-                .AsNoTracking()
                 .Include(_ => _.CharacteristicValues)
                 .Where(_ => _.IsCurrent)
                 .ToListAsync();
@@ -102,7 +101,8 @@ namespace TinkoffWatcher_Api.Controllers
                 AdditionalComment = model.AdditionalComment,
                 Year = model.Year,
                 StudentId = model.StudentId,
-                AgentId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id
+                AgentId = model.AgentId,
+                Characteristics = new List<Characteristic>()
             };
 
             foreach (var characteristic in model.Characteristics)
@@ -123,19 +123,20 @@ namespace TinkoffWatcher_Api.Controllers
 
                 var characteristickEntity = new Characteristic()
                 {
-                    CharacteristicType = characteristicType
+                    CharacteristicType = characteristicType,
+                    CharacteristicValue = characteristicValue
                 };
 
-                if (characteristic.CharacteristicValue.BoolValue != null)
-                {
-                    characteristickEntity.CharacteristicValue = 
-                        _mapper.Map<CharacteristicBoolValue>(characteristic.CharacteristicValue);
-                }
-                else
-                {
-                    characteristickEntity.CharacteristicValue =
-                        _mapper.Map<CharacteristicIntValue>(characteristic.CharacteristicValue);
-                }
+                //if (characteristic.CharacteristicValue.BoolValue != null)
+                //{
+                //    characteristickEntity.CharacteristicValue = 
+                //        _mapper.Map<CharacteristicBoolValue>(characteristic.CharacteristicValue);
+                //}
+                //else
+                //{
+                //    characteristickEntity.CharacteristicValue =
+                //        _mapper.Map<CharacteristicIntValue>(characteristic.CharacteristicValue);
+                //}
 
                 markEntity.Characteristics.Add(characteristickEntity);
 
