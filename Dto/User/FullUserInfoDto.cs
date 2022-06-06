@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TinkoffWatcher_Api.Dto.Company;
+using TinkoffWatcher_Api.Dto.Cv;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Enums;
 
@@ -31,6 +32,7 @@ namespace TinkoffWatcher_Api.Dto.User
         public bool IsViber { get; set; }
 
         public Guid? CvId { get; set; }
+        public CvDto Cv { get; set; }
         public Guid? CompanyId { get; set; }
         public CompanyDto Company { get; set; }
         public string Post { get; set; }

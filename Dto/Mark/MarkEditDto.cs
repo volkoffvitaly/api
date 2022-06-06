@@ -8,7 +8,6 @@ namespace TinkoffWatcher_Api.Dto.Feedback
 {
     public class MarkEditDto 
     {
-        [Range(2018, 9999)]
         public SemesterEnum Semester { get; set; }
 
         public Guid StudentId { get; set; }
@@ -16,6 +15,8 @@ namespace TinkoffWatcher_Api.Dto.Feedback
 
         public string OverallMark { get; set; }
         public string AdditionalComment { get; set; }
+
+        [Range(2018, 9999)]
         public int Year { get; set; }
 
         public virtual ICollection<CharacteristicCreateDto> Characteristics { get; set; }

@@ -24,6 +24,7 @@ namespace TinkoffWatcher_Api
             CreateMap<ApplicationUser, FullUserInfoDto>()
                 .ForMember(x => x.MarksAsStudent, opt => opt.MapFrom(x => x.MarksAsStudent))
                 .ForMember(x => x.MarksAsAgent, opt => opt.MapFrom(x => x.MarksAsAgent))
+                .ForMember(x => x.Cv, opt => opt.MapFrom(x => x.Cv))
                 .ForMember(x => x.Company, opt => opt.MapFrom(x => x.Company))
                 .ForMember(x => x.Roles, opt => opt.MapFrom(x => _userManager.GetRolesAsync(x).GetAwaiter().GetResult()));
 
