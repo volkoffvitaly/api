@@ -49,5 +49,29 @@ namespace TinkoffWatcher_Api.Helpers
 
             return Convert.ToBase64String(randomNumber);
         }
+
+        public static string GetUsernameFromToken(string token, IConfiguration _configuration)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"])),
+                ValidateLifetime = false
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+
+            var username = claimsPrincipal.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(username))
+                throw new Exception("Token generation/validation failed");
+
+            return username;
+        }
     }
 }

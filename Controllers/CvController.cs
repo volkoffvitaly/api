@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Cv;
+using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Controllers
@@ -20,10 +22,15 @@ namespace TinkoffWatcher_Api.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public CvController(ApplicationDbContext context, IMapper mapper)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public CvController(
+            ApplicationDbContext context,
+            IMapper mapper,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -43,9 +50,30 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        public async Task<IActionResult> GetCv(Guid id)
         {
             var CvEntity = await _context.Cvs.FirstOrDefaultAsync(cv => cv.Id == id);
+
+            var CvDto = _mapper.Map<CvDto>(CvEntity);
+
+            return Ok(CvDto);
+        }
+
+        [HttpGet]
+        [Route("CurrentUser")]
+        public async Task<IActionResult> GetCv()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (user == null)
+            {
+                return BadRequest("Current user is not detected.");
+            }
+
+            var CvEntity = user.Cv;
+
+            if (CvEntity == null)
+                return Ok();
 
             var CvDto = _mapper.Map<CvDto>(CvEntity);
 
@@ -194,6 +222,9 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
+                _context.RemoveRange(cvEntity.LanguageProficiencies);
+                _context.RemoveRange(cvEntity.WorkExperiences);
+                _context.RemoveRange(cvEntity.UsefulLinks);
                 _context.Remove(cvEntity);
                 await _context.SaveChangesAsync();
             }

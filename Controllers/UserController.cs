@@ -20,6 +20,7 @@ using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Enums;
 using TinkoffWatcher_Api.Filters;
+using TinkoffWatcher_Api.Helpers;
 using TinkoffWatcher_Api.Models;
 using Xceed.Words.NET;
 
@@ -138,7 +139,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo")]
         public async Task<IActionResult> GetUserInfo(string token)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == JwtHelper.GetUsernameFromToken(token, _configuration));
 
             if (user == default)
                 return NotFound();
@@ -184,7 +185,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo")]
         public async Task<IActionResult> UpdateUserInfo(string token, [FromBody] FullUserInfoEditDto fullUserInfoEditDto)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == JwtHelper.GetUsernameFromToken(token, _configuration));
 
             if (user == default)
                 return NotFound();
@@ -239,7 +240,7 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo")]
         public async Task<IActionResult> DeleteUserInfo(string token)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == GetUsernameFromToken(token));
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == JwtHelper.GetUsernameFromToken(token, _configuration));
 
             if (user == default)
                 return NotFound();
@@ -424,30 +425,6 @@ namespace TinkoffWatcher_Api.Controllers
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 $"Оценки за практику ({user.FCs}, X курс, X семестр).xlsx"
             );
-        }
-
-        private string GetUsernameFromToken(string token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"])),
-                ValidateLifetime = false
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid token");
-
-            var username = claimsPrincipal.Identity?.Name;
-
-            if (string.IsNullOrWhiteSpace(username))
-                throw new Exception("Token generation/validation failed");
-
-            return username;
         }
     }
 }
