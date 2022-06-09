@@ -222,10 +222,10 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                _context.RemoveRange(cvEntity.LanguageProficiencies);
-                _context.RemoveRange(cvEntity.WorkExperiences);
-                _context.RemoveRange(cvEntity.UsefulLinks);
-                _context.Remove(cvEntity);
+                _context.LanguageProficiencies.RemoveRange(cvEntity.LanguageProficiencies);
+                _context.WorkExperiences.RemoveRange(cvEntity.WorkExperiences);
+                _context.UsefulLinks.RemoveRange(cvEntity.UsefulLinks);
+                _context.Cvs.Remove(cvEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
