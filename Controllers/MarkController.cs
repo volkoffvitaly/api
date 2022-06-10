@@ -71,8 +71,8 @@ namespace TinkoffWatcher_Api.Controllers
         {
             Expression<Func<Mark, bool>> expr = request => true;
 
-            if (filter.Value.HasValue)
-                expr = expr.AndAlso(mark => mark.Value == filter.Value);
+            if (!string.IsNullOrEmpty(filter.Value))
+                expr = expr.AndAlso(mark => mark.OverallMark == filter.Value);
 
             if (filter.Semester.HasValue)
                 expr = expr.AndAlso(mark => mark.Semester == filter.Semester);

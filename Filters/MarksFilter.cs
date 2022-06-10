@@ -7,7 +7,7 @@ namespace TinkoffWatcher_Api.Filters
     /// </summary>
     public class MarksFilter
     {
-        public int? Value { get; set; }
+        public string? Value { get; set; }
         public int? StartYear { get; set; }
 
         public int? EndYear { get; set; }
