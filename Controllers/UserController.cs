@@ -126,7 +126,10 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo/{id}")]
         public async Task<IActionResult> GetUserInfo(Guid id)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _context.Users
+                .Include(x => x.Subscriptions)
+                    .ThenInclude(s => s.Company)
+                .SingleOrDefaultAsync(x => x.Id == id);
 
             if (user == default)
                 return NotFound();
@@ -139,7 +142,10 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("UserInfo")]
         public async Task<IActionResult> GetUserInfo(string token)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == JwtHelper.GetUsernameFromToken(token, _configuration));
+            var user = await _context.Users
+                .Include(x => x.Subscriptions)
+                    .ThenInclude(s => s.Company)
+                .SingleOrDefaultAsync(x => x.UserName == JwtHelper.GetUsernameFromToken(token, _configuration));
 
             if (user == default)
                 return NotFound();
