@@ -402,7 +402,7 @@ namespace TinkoffWatcher_Api.Controllers
                 .Where(x => x.StudentId == user.Id)
                 .OrderBy(x => x.Year)
                 .ThenBy(x => x.Semester)
-                .ThenBy(x => x.Value)
+                .ThenBy(x => x.OverallMark)
                 .ThenBy(x => x.AgentId);
 
             var workbook = new XLWorkbook(copyFilePath);
