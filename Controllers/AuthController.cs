@@ -166,6 +166,63 @@ namespace TinkoffWatcher_Api.Controllers
             await _signInManager.SignOutAsync();
             return Ok();
         }
+
+        [HttpPost]
+        [Route("RegisterUser")]
+        [Authorize(Roles = ApplicationRoles.Administrators)]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            model.Username = model.Username?.Trim();
+            model.Email = model.Email?.Trim();
+            model.Password = model.Password?.Trim();
+            model.ConfirmPassword = model.ConfirmPassword?.Trim();
+            model.FirstName = model.FirstName?.Trim();
+            model.MiddleName = model.MiddleName?.Trim();
+            model.LastName = model.LastName?.Trim();
+
+            var userWithSameCredentials = await _userManager.Users.FirstOrDefaultAsync(y => y.Email == model.Email);
+
+            if (userWithSameCredentials != default)
+                return BadRequest("Пользователь с такой электронной почтой уже существует");
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                MiddleName = model.MiddleName,
+                LastName = model.LastName,
+                BirthDate = model.DateOfBirth,
+                Gender = model.Gender,
+                //Grade = model.Grade ?? Grade.BachelorSecond,
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+
+                var userRole = await _roleManager.FindByNameAsync(model.Role);
+
+                if (!await _userManager.IsInRoleAsync(user, userRole.Name))
+                {
+                    await _userManager.AddToRoleAsync(user, userRole.Name);
+                }
+
+                return Ok(new
+                {
+                    UserName = user.UserName,
+                    UserId = user.Id,
+                });
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
     }
 }
 
