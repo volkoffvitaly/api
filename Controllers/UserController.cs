@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -7,18 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
 using TinkoffWatcher_Api.Dto.User;
-using TinkoffWatcher_Api.Enums;
 using TinkoffWatcher_Api.Filters;
 using TinkoffWatcher_Api.Helpers;
 using TinkoffWatcher_Api.Models;
@@ -356,7 +351,7 @@ namespace TinkoffWatcher_Api.Controllers
             var doc = DocX.Load(copyFilePath);
 
             doc.ReplaceText(_configuration["PracticeDiary:StudentFCsKeywords"], user.FCs);
-            //doc.ReplaceText(_configuration["PracticeDiary:GradeKeywords"], "******"); // user.Grade + " курс", обсудить
+            doc.ReplaceText(_configuration["PracticeDiary:GradeKeywords"], user.Grade + " курс");
             doc.ReplaceText(_configuration["PracticeDiary:CompanyFullNameKeywords"], user.Company.Name);
             //doc.ReplaceText(_configuration["PracticeDiary:OrderKeywords"], "******"); // обсудить
             //doc.ReplaceText(_configuration["PracticeDiary:ManagerFCsKeywords"], "******"); // обсудить
@@ -367,69 +362,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             return File(file,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                $"Дневник практики ({user.FCs}, X курс, X семестр).docx"
-            );
-        }
-
-        [HttpGet]
-        [Route("{id}/MarksReport")]
-        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.Student + "," + ApplicationRoles.SchoolAgent)]
-        public async Task<IActionResult> GetMarksReport(Guid id)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-
-            if (user == null)
-                return NotFound($"User with id: {id} isn't exist");
-
-            if (user.Company == null || !await _userManager.IsInRoleAsync(user, ApplicationRoles.Student))
-                return BadRequest($"User with id: {id} isn't intern");
-
-            var templateFilePath = Path.Combine(
-                _webHostEnvironment.WebRootPath,
-                _configuration["WwwrootPathKeys:Files"],
-                _configuration["WwwrootPathKeys:MarksReportTemplate"]
-            );
-
-            var copyFilePath = Path.Combine(
-                _webHostEnvironment.WebRootPath,
-                _configuration["WwwrootPathKeys:Files"],
-                Guid.NewGuid().ToString() + ".xlsx"
-            );
-
-            System.IO.File.Copy(templateFilePath, copyFilePath);
-
-            var marks = _context.Marks
-                .Where(x => x.StudentId == user.Id)
-                .OrderBy(x => x.Year)
-                .ThenBy(x => x.Semester)
-                .ThenBy(x => x.OverallMark)
-                .ThenBy(x => x.AgentId);
-
-            var workbook = new XLWorkbook(copyFilePath);
-            var worksheet = workbook.Worksheets.First();
-
-            var rowPointer = worksheet.FirstRowUsed().RowBelow();
-
-            foreach (var mark in marks)
-            {
-                var semesterName = mark.Semester == SemesterEnum.Spring ? "Весенний" : "Осенний";
-
-                rowPointer.Cell(1).SetValue($"{mark.Year} / {semesterName})");
-                rowPointer.Cell(2).SetValue(mark.OverallMark);
-                rowPointer.Cell(3).SetValue(mark.Agent.FCs);
-                rowPointer.Cell(4).SetValue(mark.AdditionalComment);
-
-                rowPointer = rowPointer.RowBelow();
-            }
-
-            workbook.Save();
-
-            var file = System.IO.File.ReadAllBytes(copyFilePath);
-            System.IO.File.Delete(copyFilePath);
-
-            return File(file,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                $"Оценки за практику ({user.FCs}, X курс, X семестр).xlsx"
+                $"Дневник практики ({user.FCs}, {user.Grade} курс, X семестр).docx"
             );
         }
     }
