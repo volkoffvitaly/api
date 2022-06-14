@@ -164,15 +164,6 @@ namespace TinkoffWatcher_Api.Controllers
             await _signInManager.SignOutAsync();
             return Ok();
         }
-
-        [HttpGet]
-        [Route("Roles")]
-        [Authorize]
-        public async Task<IActionResult> GetRoles()
-        {
-            var roles = await _context.Roles.Select(_ => _.Name).ToListAsync();
-            return Ok(roles);
-        }
     }
 }
 
