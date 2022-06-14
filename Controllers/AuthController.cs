@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
+using TinkoffWatcher_Api.Enums;
 using TinkoffWatcher_Api.Helpers;
 using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Auth;
@@ -32,7 +33,7 @@ namespace TinkoffWatcher_Api.Controllers
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-        IConfiguration configuration)
+            IConfiguration configuration)
         {
             _signInManager = signInManager;
             _context = context;
@@ -112,6 +113,7 @@ namespace TinkoffWatcher_Api.Controllers
                 LastName = model.LastName,
                 BirthDate = model.DateOfBirth,
                 Gender = model.Gender,
+                //Grade = model.Grade ?? Grade.BachelorSecond,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

@@ -50,6 +50,9 @@ namespace TinkoffWatcher_Api.Models.Auth
         [Display(Name = "Дата рождения")]
         public DateTime DateOfBirth { get; set; }
 
+        [Display(Name = "Курс")]
+        public Grade? Grade { get; set; }
+
         [Display(Name = "Пол")]
         public Gender Gender { get; set; }
 
