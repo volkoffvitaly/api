@@ -52,5 +52,7 @@ namespace TinkoffWatcher_Api.Models.Auth
 
         [Display(Name = "Пол")]
         public Gender Gender { get; set; }
+
+        public string Role { get; set; } = ApplicationRoles.Student; 
     }
 }

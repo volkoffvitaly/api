@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -133,11 +134,11 @@ namespace TinkoffWatcher_Api.Controllers
                 _context.RefreshTokens.Add(newRefresh);
                 await _context.SaveChangesAsync();
 
-                var studentsRole = await _roleManager.FindByNameAsync(ApplicationRoles.Student);
+                var userRole = await _roleManager.FindByNameAsync(model.Role);
 
-                if (!await _userManager.IsInRoleAsync(user, studentsRole.Name))
+                if (!await _userManager.IsInRoleAsync(user, userRole.Name))
                 {
-                    await _userManager.AddToRoleAsync(user, studentsRole.Name);
+                    await _userManager.AddToRoleAsync(user, userRole.Name);
                 }
 
                 return Ok(new
@@ -162,6 +163,15 @@ namespace TinkoffWatcher_Api.Controllers
         {
             await _signInManager.SignOutAsync();
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("Roles")]
+        [Authorize]
+        public async Task<IActionResult> GetRoles()
+        {
+            var roles = await _context.Roles.Select(_ => _.Name).ToListAsync();
+            return Ok(roles);
         }
     }
 }
