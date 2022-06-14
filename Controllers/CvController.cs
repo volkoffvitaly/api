@@ -90,7 +90,7 @@ namespace TinkoffWatcher_Api.Controllers
             {
                 var cvEntity = _mapper.Map<Cv>(model);
 
-                _context.Add(cvEntity);
+                _context.Update(cvEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
