@@ -8,7 +8,6 @@ namespace TinkoffWatcher_Api.Models.Entities
 {
     public class Mark : BaseEntity
     {
-        public int Value { get; set; }
         public string OverallMark { get; set; }
         public string AdditionalComment { get; set; } 
         public int Year { get; set; }

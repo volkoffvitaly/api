@@ -19,6 +19,6 @@ namespace TinkoffWatcher_Api.Dto.Feedback
         [Range(2018, 9999)]
         public int Year { get; set; }
 
-        public virtual ICollection<CharacteristicCreateDto> Characteristics { get; set; }
+        public virtual ICollection<MarkCharacteristicEditDto> Characteristics { get; set; }
     }
 }

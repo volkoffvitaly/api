@@ -10,7 +10,7 @@ namespace TinkoffWatcher_Api.Dto.Feedback
 {
     public class MarkDto : BaseDto
     {
-        public int Value { get; set; }
+        public string OverallMark { get; set; }
         public string Review { get; set; }
 
         public int Year { get; set; }
