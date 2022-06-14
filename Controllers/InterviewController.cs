@@ -31,7 +31,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var interviewEntities = _context.Interviews;
+            var interviewEntities = _context.Interviews.Include(_ => _.Student);
             var interviewDtos = _mapper.ProjectTo<InterviewDto>(interviewEntities);
 
             return Ok(interviewDtos);

@@ -13,7 +13,7 @@ namespace TinkoffWatcher_Api.Dto.Interview
         [MaxLength(255)]
         public string AdditionalInfo { get; set; }
 
-        public Guid StudentId { get; set; }
+        public Guid? StudentId { get; set; }
         public Guid VacancyId { get; set; }
     }
 }

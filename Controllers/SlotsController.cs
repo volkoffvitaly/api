@@ -26,6 +26,7 @@ namespace TinkoffWatcher_Api.Controllers
     [Route("Api/[controller]")]
     [ApiController]
     [Authorize]
+    [Obsolete]
     public class SlotsController : Controller
     {
         private readonly ApplicationDbContext _context;
