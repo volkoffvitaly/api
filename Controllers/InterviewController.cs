@@ -64,7 +64,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPost]
         [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
-        public async Task<IActionResult> Create([FromBody] InterviewEditDto model)
+        public async Task<IActionResult> Create([FromBody] InterviewCreateOrEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -72,7 +72,6 @@ namespace TinkoffWatcher_Api.Controllers
             try
             {
                 var interviewEntity = _mapper.Map<Interview>(model);
-                interviewEntity.CreatedDate = DateTime.UtcNow;
 
                 _context.Add(interviewEntity);
                 await _context.SaveChangesAsync();
@@ -88,7 +87,7 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpPut]
         [Route("{id}")]
         [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] InterviewEditDto model)
+        public async Task<IActionResult> Put(Guid id, [FromBody] InterviewCreateOrEditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -101,7 +100,6 @@ namespace TinkoffWatcher_Api.Controllers
             try
             {
                 interviewEntity = _mapper.Map(model, interviewEntity);
-                interviewEntity.EditedDate = DateTime.UtcNow;
 
                 _context.Update(interviewEntity);
                 await _context.SaveChangesAsync();

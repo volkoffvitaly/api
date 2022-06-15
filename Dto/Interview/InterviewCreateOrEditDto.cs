@@ -7,12 +7,12 @@ using TinkoffWatcher_Api.Models.Entities;
 
 namespace TinkoffWatcher_Api.Dto.Interview
 {
-    public class InterviewEditDto 
+    public class InterviewCreateOrEditDto 
     {
         public DateTime Date { get; set; }
         [MaxLength(255)]
         public string AdditionalInfo { get; set; }
-
+        public int Duration { get; set; }
         public Guid? StudentId { get; set; }
         public Guid VacancyId { get; set; }
     }

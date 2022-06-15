@@ -35,7 +35,7 @@ namespace TinkoffWatcher_Api
             CreateMap<FeedbackCreateDto, Feedback>();
             CreateMap<Feedback, FeedbackDto>();
 
-            CreateMap<InterviewEditDto, Interview>();
+            CreateMap<InterviewCreateOrEditDto, Interview>();
             CreateMap<Interview, InterviewDto>();
 
             CreateMap<VacancyEditDto, Vacancy>();
