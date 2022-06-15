@@ -25,6 +25,12 @@ namespace TinkoffWatcher_Api.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<CharacteristicAnswer>()
+                .HasOne(x => x.CharacteristicQuestion)
+                .WithMany(x => x.CharacteristicAnswers)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
 
 
@@ -42,11 +48,9 @@ namespace TinkoffWatcher_Api.Data
         public DbSet<Slot> Slots { get; set; }
         public DbSet<WorkExperience> WorkExperiences { get; set; }
         public DbSet<SubscriberToCompany> SubscriberToCompanies { get; set; }
-        public DbSet<CharacteristicValue> CharacteristicValues { get; set; }
-        public DbSet<CharacteristicBoolValue> CharacteristicBoolValues { get; set; }
-        public DbSet<CharacteristicIntValue> CharacteristicIntValues { get; set; }
-        public DbSet<CharacteristicType> CharacteristicTypes { get; set; }
         public DbSet<Characteristic> Characteristics { get; set; }
+        public DbSet<CharacteristicAnswer> CharacteristicAnswers { get; set; }
+        public DbSet<CharacteristicQuestion> CharacteristicQuestions { get; set; }
 
         public override int SaveChanges()
         {

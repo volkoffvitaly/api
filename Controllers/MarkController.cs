@@ -109,11 +109,18 @@ namespace TinkoffWatcher_Api.Controllers
 
             foreach (var characteristic in model.Characteristics)
             {
+                var answerEntities = new List<CharacteristicAnswer>();
+
+                foreach(var answer in characteristic.CharacteristicAnswerIds)
+                {
+                    answerEntities.Add(new CharacteristicAnswer() { Id = answer });
+                }
+
                 markEntity.Characteristics.Add(new Characteristic()
                 {
                     Other = characteristic.Other,
-                    CharacteristicTypeId = characteristic.CharacteristicTypeId,
-                    CharacteristicValueId = characteristic.CharacteristicValueId,
+                    CharacteristicQuestionId = characteristic.CharacteristicQuestionId,
+                    CharacteristicAnswers = answerEntities
                 });
             }
 
@@ -140,6 +147,22 @@ namespace TinkoffWatcher_Api.Controllers
 
             markEntity = _mapper.Map(model, markEntity);
 
+            foreach (var characteristic in model.Characteristics)
+            {
+                var answerEntities = new List<CharacteristicAnswer>();
+                
+                foreach (var value in characteristic.CharacteristicAnswerIds)
+                {
+                    answerEntities.Add(new CharacteristicAnswer() { Id = value });
+                }
+                markEntity.Characteristics.Add(new Characteristic()
+                {
+                    Other = characteristic.Other,
+                    CharacteristicQuestionId = characteristic.CharacteristicQuestionId,
+                    CharacteristicAnswers = answerEntities
+                });
+            }
+
             _context.Update(markEntity);
             await _context.SaveChangesAsync();
 
@@ -163,24 +186,24 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpGet]
-        [Route("CharacteristicType")]
+        [Route("CharacteristicQuestion")]
         [AllowAnonymous]
         public async Task<IActionResult> GetCharacteristicTypes()
         {
             try
             {
-                var characteristicTypes = await _context.CharacteristicTypes
-                    .Include(_ => _.CharacteristicValues)
+                var characteristicTypes = await _context.CharacteristicQuestions
+                    .Include(_ => _.CharacteristicAnswers)
                     .Where(_ => _.IsCurrent && !_.IsDeleted)
                     .ToListAsync();
 
-                var result = new List<CharacteristicTypeDto>();
+                var result = new List<CharacteristicQuestionDto>();
 
                 foreach (var type in characteristicTypes)
                 {
-                    type.CharacteristicValues = type.CharacteristicValues
+                    type.CharacteristicAnswers = type.CharacteristicAnswers
                         .Where(_ => _.IsCurrent && !_.IsDeleted).ToList();
-                    var mapped = _mapper.Map<CharacteristicTypeDto>(type);
+                    var mapped = _mapper.Map<CharacteristicQuestionDto>(type);
                     result.Add(mapped);    
                 }
 
@@ -193,9 +216,9 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPost]
-        [Route("CharacteristicType")]
+        [Route("CharacteristicQuestion")]
         [AllowAnonymous]
-        public async Task<IActionResult> CreateCharacteristicType(CharacteristicTypeCreateDto model)
+        public async Task<IActionResult> CreateCharacteristicType(CharacteristicQuestionCreateDto model)
         {
             if(!ModelState.IsValid)
             {
@@ -204,34 +227,21 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                var charasteristicValues = new List<CharacteristicValue>();
-                foreach(var value in model.CharacteristicValues)
+                var characteristicAnswers = new List<CharacteristicAnswer>();
+                foreach(var answer in model.CharacteristicAnswers)
                 {
-                    if (value.BoolValue != null)
-                    {
-                        charasteristicValues.Add(new CharacteristicBoolValue()
-                        {
-                            BoolValue = value.BoolValue,
-                            Description = value.Description
-                        });
-                    }
-                    else
-                    {
-                        charasteristicValues.Add(new CharacteristicIntValue()
-                        {
-                            IntValue = value.IntValue,
-                            Description = value.Description
-                        });
-                    }
+                    characteristicAnswers.Add(new CharacteristicAnswer() 
+                    { Description = answer.Description });
                 }
 
-                var characteristicType = new CharacteristicType()
+                var characteristicType = new CharacteristicQuestion()
                 {
                     Name = model.Name,
-                    CharacteristicValues = charasteristicValues
+                    IsMultipleValues = model.IsMultipleValues,
+                    CharacteristicAnswers = characteristicAnswers
                 };
 
-                _context.CharacteristicTypes.Add(characteristicType);
+                _context.CharacteristicQuestions.Add(characteristicType);
                 await _context.SaveChangesAsync();
             }
             catch
@@ -243,9 +253,9 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpPut]
-        [Route("CharacteristicType/{id}")]
+        [Route("CharacteristicQuestion/{id}")]
         [AllowAnonymous]
-        public async Task<IActionResult> EditCharacteristicType(Guid id, CharacteristicTypeEditDto model)
+        public async Task<IActionResult> EditCharacteristicType(Guid id, CharacteristicQuestionEditDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -254,8 +264,8 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                var characteristicTypeEntity = await _context.CharacteristicTypes
-                    .Include(_ => _.CharacteristicValues)
+                var characteristicTypeEntity = await _context.CharacteristicQuestions
+                    .Include(_ => _.CharacteristicAnswers)
                     .FirstOrDefaultAsync(_ => _.Id == id);
 
                 if(characteristicTypeEntity == null)
@@ -263,47 +273,19 @@ namespace TinkoffWatcher_Api.Controllers
                     return BadRequest($"CharacteristicType with id={id} not found in DB");
                 }
 
-                var charasteristicValues = new List<CharacteristicValue>();
-                foreach (var value in model.CharacteristicValues)
+                var answerEntities = characteristicTypeEntity.CharacteristicAnswers;
+                foreach (var answer in model.CharacteristicAnswers)
                 {
-                    var valueEntity = characteristicTypeEntity.CharacteristicValues.FirstOrDefault(_ => _.Id == value.Id);
-                    if(valueEntity == null)
+                    var answerEntity = characteristicTypeEntity.CharacteristicAnswers.FirstOrDefault(_ => _.Id == answer.Id);
+                    if(answerEntity == null)
                     {
-                        charasteristicValues.Add(value.BoolValue != null ? 
-                            new CharacteristicBoolValue()
-                            {
-                                BoolValue = value.BoolValue,
-                                Description = value.Description
-                            } 
-                            : 
-                            new CharacteristicIntValue()
-                            {
-                                IntValue = value.IntValue,
-                                Description = value.Description
-                            });
+                        return BadRequest($"Characteristic anwswer with id={answer.Id} not found in DB");
                     }
-                    else
-                    {
-                        if(valueEntity is CharacteristicBoolValue)
-                        {
-                            var newValue = (CharacteristicBoolValue)valueEntity.Clone();
-                            newValue.BoolValue = value.BoolValue;
-                            newValue.Description = value.Description;
-                            charasteristicValues.Add(newValue);
-                        }
-                        else
-                        {
-                            var newValue = (CharacteristicIntValue)valueEntity.Clone();
-                            newValue.IntValue = value.IntValue;
-                            newValue.Description = value.Description;
-                            charasteristicValues.Add(newValue);
-                        }
-                    }
-                    
+                    answerEntity.Description = answer.Description;
                 }
 
                 characteristicTypeEntity.Name = model.Name;
-                characteristicTypeEntity.CharacteristicValues = charasteristicValues;
+                characteristicTypeEntity.CharacteristicAnswers = answerEntities;
 
                 await _context.SaveChangesAsync();
             }
@@ -316,7 +298,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpDelete]
-        [Route("CharacteristicType/{id}")]
+        [Route("CharacteristicQuestion/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> RemoveCharacteristicType(Guid id)
         {
@@ -327,8 +309,8 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                var characteristicTypeEntity = await _context.CharacteristicTypes
-                    .Include(_ => _.CharacteristicValues)
+                var characteristicTypeEntity = await _context.CharacteristicQuestions
+                    .Include(_ => _.CharacteristicAnswers)
                     .FirstOrDefaultAsync(_ => _.Id == id);
 
                 if (characteristicTypeEntity == null)
@@ -336,7 +318,7 @@ namespace TinkoffWatcher_Api.Controllers
                     return BadRequest($"CharacteristicType with id={id} not found in DB");
                 }
 
-                _context.CharacteristicTypes.Remove(characteristicTypeEntity);
+                _context.CharacteristicQuestions.Remove(characteristicTypeEntity);
                 await _context.SaveChangesAsync();
             }
             catch
@@ -348,7 +330,7 @@ namespace TinkoffWatcher_Api.Controllers
         }
 
         [HttpDelete]
-        [Route("CharacteristicType/{id}/{valueId}")]
+        [Route("CharacteristicQuestion/{id}/{valueId}")]
         [AllowAnonymous]
         public async Task<IActionResult> RemoveCharacteristicTypeValue(Guid id, Guid valueId)
         {
@@ -359,15 +341,15 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                var characteristicValueEntity = await _context.CharacteristicValues
-                    .FirstOrDefaultAsync(_ => _.Id == valueId && _.CharacteristicTypeId == id);
+                var characteristicValueEntity = await _context.CharacteristicAnswers
+                    .FirstOrDefaultAsync(_ => _.Id == valueId && _.CharacteristicQuestionId == id);
 
                 if (characteristicValueEntity == null)
                 {
                     return BadRequest($"Characteristic value with id={valueId} not found in DB");
                 }
 
-                _context.CharacteristicValues.Remove(characteristicValueEntity);
+                _context.CharacteristicAnswers.Remove(characteristicValueEntity);
                 await _context.SaveChangesAsync();
             }
             catch
@@ -443,30 +425,30 @@ namespace TinkoffWatcher_Api.Controllers
                         {
                             var offset = 0;
 
-                            if (characteristic.CharacteristicValue is CharacteristicBoolValue boolValue)
-                            {
-                                rowPointer.RowBelow().Cell(cellPointer).SetValue(boolValue.BoolValue);
+                            //if (characteristic.CharacteristicValues is CharacteristicBoolValue boolValue)
+                            //{
+                            //    rowPointer.RowBelow().Cell(cellPointer).SetValue(boolValue.BoolValue);
 
-                                offset = 1;
-                            }
+                            //    offset = 1;
+                            //}
 
-                            if (characteristic.CharacteristicValue is CharacteristicIntValue intValue)
-                            {
-                                worksheet.Range(worksheet.Cell(rowPointer.RowNumber(), cellPointer), worksheet.Cell(rowPointer.RowNumber(), cellPointer + 1)).Merge();
+                            //if (characteristic.CharacteristicValues.FirstOrDefault() is CharacteristicIntValue intValue)
+                            //{
+                            //    worksheet.Range(worksheet.Cell(rowPointer.RowNumber(), cellPointer), worksheet.Cell(rowPointer.RowNumber(), cellPointer + 1)).Merge();
 
-                                rowPointer.RowBelow().Cell(cellPointer).SetValue(intValue.IntValue);
-                                rowPointer.RowBelow().Cell(cellPointer + 1).SetValue(intValue.Description);
+                            //    rowPointer.RowBelow().Cell(cellPointer).SetValue(intValue.IntValue);
+                            //    rowPointer.RowBelow().Cell(cellPointer + 1).SetValue(intValue.Description);
 
-                                if (!string.IsNullOrWhiteSpace(characteristic.Other))
-                                {
-                                    rowPointer.RowBelow().Cell(cellPointer).SetValue("[Другое]");
-                                    rowPointer.RowBelow().Cell(cellPointer + 1).SetValue(characteristic.Other);
-                                }
+                            //    if (!string.IsNullOrWhiteSpace(characteristic.Other))
+                            //    {
+                            //        rowPointer.RowBelow().Cell(cellPointer).SetValue("[Другое]");
+                            //        rowPointer.RowBelow().Cell(cellPointer + 1).SetValue(characteristic.Other);
+                            //    }
 
-                                offset = 2;
-                            }
+                            //    offset = 2;
+                            //}
 
-                            rowPointer.Cell(cellPointer).SetValue(characteristic.CharacteristicType.Name);
+                            rowPointer.Cell(cellPointer).SetValue(characteristic.CharacteristicQuestion.Name);
 
                             cellPointer += offset;
                         }

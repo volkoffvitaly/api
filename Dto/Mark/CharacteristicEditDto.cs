@@ -7,7 +7,7 @@ namespace TinkoffWatcher_Api.Dto.Mark
     {
         public string Other { get; set; }
 
-        public virtual CharacteristicTypeEditDto CharacteristicType { get; set; }
-        public virtual CharacteristicValueEditDto CharacteristicValue { get; set; }
+        public virtual CharacteristicQuestionEditDto CharacteristicQuestions { get; set; }
+        public virtual CharacteristicAnswerEditDto CharacteristicAnswers { get; set; }
     }
 }

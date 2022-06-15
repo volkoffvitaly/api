@@ -2,10 +2,8 @@
 
 namespace TinkoffWatcher_Api.Dto.Mark
 {
-    public class CharacteristicValueDto : BaseDto
+    public class CharacteristicAnswerDto : BaseDto
     {
         public string Description { get; set; }
-        public int? IntValue { get; set; }
-        public bool? BoolValue { get; set; }
     }
 }

@@ -79,24 +79,19 @@ namespace TinkoffWatcher_Api
                 .ForMember(cv => cv.UsefulLinks, opt => opt.MapFrom(x => x.UsefulLinks))
                 .ForMember(cv => cv.LanguageProficiencies, opt => opt.MapFrom(x => x.LanguageProficiencies));
 
-            CreateMap<CharacteristicValue, CharacteristicValueDto>();
+            CreateMap<CharacteristicAnswer, CharacteristicAnswerDto>();
 
-            CreateMap<CharacteristicBoolValue, CharacteristicValueDto>()
-                .IncludeBase< CharacteristicValue, CharacteristicValueDto>();
-            CreateMap<CharacteristicIntValue, CharacteristicValueDto>()
-                .IncludeBase<CharacteristicValue, CharacteristicValueDto>();
-
-
-            CreateMap<CharacteristicType, CharacteristicTypeDto>()
-                .ForMember(_ => _.CharacteristicValues, opt => opt.MapFrom(x => x.CharacteristicValues));
+            CreateMap<CharacteristicQuestion, CharacteristicQuestionDto>()
+                .ForMember(_ => _.CharacteristicAnswers, opt => opt.MapFrom(x => x.CharacteristicAnswers));
 
             CreateMap<Characteristic, CharacteristicDto>()
-                .ForMember(_ => _.CharacteristicType, opt => opt.MapFrom(x => x.CharacteristicType));
+                .ForMember(_ => _.CharacteristicAnswers, opt => opt.MapFrom(x => x.CharacteristicAnswers))
+                .ForMember(_ => _.CharacteristicQuestions, opt => opt.MapFrom(x => x.CharacteristicQuestion));
 
-            CreateMap<CharacteristicValueDto, CharacteristicIntValue>();
-            CreateMap<CharacteristicValueDto, CharacteristicBoolValue>();
+            CreateMap<MarkCharacteristicEditDto, Characteristic>()
+                .ForMember(_ => _.CharacteristicAnswers, opt => opt.Ignore());
 
-            CreateMap<CharacteristicTypeDto, CharacteristicType>();
+            CreateMap<CharacteristicQuestionDto, CharacteristicQuestion>();
         }
     }
 }

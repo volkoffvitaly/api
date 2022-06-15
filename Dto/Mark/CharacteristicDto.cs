@@ -1,4 +1,5 @@
-﻿using TinkoffWatcher_Api.Dto.Base;
+﻿using System.Collections.Generic;
+using TinkoffWatcher_Api.Dto.Base;
 
 namespace TinkoffWatcher_Api.Dto.Mark
 {
@@ -6,7 +7,7 @@ namespace TinkoffWatcher_Api.Dto.Mark
     {
         public string Other { get; set; }
 
-        public virtual CharacteristicTypeDto CharacteristicType { get; set; }
-        public virtual CharacteristicValueDto CharacteristicValue { get; set; }
+        public virtual CharacteristicQuestionDto CharacteristicQuestions { get; set; }
+        public virtual List<CharacteristicAnswerDto> CharacteristicAnswers { get; set; }
     }
 }
