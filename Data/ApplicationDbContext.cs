@@ -51,6 +51,7 @@ namespace TinkoffWatcher_Api.Data
         public DbSet<Characteristic> Characteristics { get; set; }
         public DbSet<CharacteristicAnswer> CharacteristicAnswers { get; set; }
         public DbSet<CharacteristicQuestion> CharacteristicQuestions { get; set; }
+        public DbSet<Property> Properties { get; set; }
 
         public override int SaveChanges()
         {
