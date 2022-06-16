@@ -51,6 +51,7 @@ namespace TinkoffWatcher_Api
             services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.MaxDepth = 3;
             });
 
             services.AddSwaggerGen(swagger =>
