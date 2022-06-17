@@ -150,14 +150,17 @@ namespace TinkoffWatcher_Api.Controllers
 
             markEntity = _mapper.Map(model, markEntity);
 
+            var ansersEntities = await _context.CharacteristicAnswers.ToListAsync();
+
             foreach (var characteristic in model.Characteristics)
             {
                 var answerEntities = new List<CharacteristicAnswer>();
-                
-                foreach (var value in characteristic.CharacteristicAnswerIds)
+
+                foreach (var answer in characteristic.CharacteristicAnswerIds)
                 {
-                    answerEntities.Add(new CharacteristicAnswer() { Id = value });
+                    answerEntities.Add(ansersEntities.FirstOrDefault(_ => _.Id == answer));
                 }
+
                 markEntity.Characteristics.Add(new Characteristic()
                 {
                     Other = characteristic.Other,
