@@ -247,7 +247,7 @@ namespace TinkoffWatcher_Api.Controllers
                 subscription.Company = companyEntity;
                 user.Subscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
-                return Ok(user);
+                return Ok();
             }
             catch
             {
@@ -278,7 +278,7 @@ namespace TinkoffWatcher_Api.Controllers
 
                 _context.Remove(subscription);
                 await _context.SaveChangesAsync();
-                return Ok(aspNetUser);
+                return Ok();
             }
             catch
             {

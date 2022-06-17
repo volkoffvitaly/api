@@ -350,11 +350,13 @@ namespace TinkoffWatcher_Api.Controllers
 
             var doc = DocX.Load(copyFilePath);
 
+            var orderEntity = _context.Properties.FirstOrDefault(x => x.Name == _configuration["Properties:OrderKeywords"]);
+
             doc.ReplaceText(_configuration["PracticeDiary:StudentFCsKeywords"], user.FCs);
             doc.ReplaceText(_configuration["PracticeDiary:GradeKeywords"], user.Grade + " курс");
             doc.ReplaceText(_configuration["PracticeDiary:CompanyFullNameKeywords"], user.Company.Name);
-            //doc.ReplaceText(_configuration["PracticeDiary:OrderKeywords"], "******"); // обсудить
-            //doc.ReplaceText(_configuration["PracticeDiary:ManagerFCsKeywords"], "******"); // обсудить
+            doc.ReplaceText(_configuration["PracticeDiary:OrderKeywords"], orderEntity?.Value ?? "******");
+            //doc.ReplaceText(_configuration["PracticeDiary:ManagerFCsKeywords"], user.Company.Employees.Where(x => x.) ?? "******"); // обсудить
             doc.Save();
 
             var file = System.IO.File.ReadAllBytes(copyFilePath);
