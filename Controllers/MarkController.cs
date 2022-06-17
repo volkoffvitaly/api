@@ -68,8 +68,8 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Filter([FromQuery] MarksFilter filter)
         {
-            var markEntities = _context.Marks.Where(GenerateFilterPredicate(filter));
-            var marksDtos = _mapper.ProjectTo<MarkDto>(markEntities);
+            var markEntities = await _context.Marks.Where(GenerateFilterPredicate(filter)).ToListAsync();
+            var marksDtos = markEntities.Select(_mapper.Map<MarkDto>).ToList();
 
             return Ok(marksDtos);
         }
@@ -107,13 +107,16 @@ namespace TinkoffWatcher_Api.Controllers
                 Characteristics = new List<Characteristic>()
             };
 
+            var ansersEntities = await _context.CharacteristicAnswers
+                .Where(_ => _.IsCurrent && !_.IsDeleted).ToListAsync();
+
             foreach (var characteristic in model.Characteristics)
             {
                 var answerEntities = new List<CharacteristicAnswer>();
 
                 foreach(var answer in characteristic.CharacteristicAnswerIds)
                 {
-                    answerEntities.Add(new CharacteristicAnswer() { Id = answer });
+                    answerEntities.Add(ansersEntities.FirstOrDefault(_ => _.Id == answer));
                 }
 
                 markEntity.Characteristics.Add(new Characteristic()
