@@ -38,7 +38,7 @@ namespace TinkoffWatcher_Api.Dto.User
         public CompanyDto Company { get; set; }
         public string Post { get; set; }
 
-        public virtual ICollection<string> CompanySubscriptions { get; set; }
+        public virtual ICollection<CompanyDto> CompanySubscriptions { get; set; }
         public virtual ICollection<MarkDto> MarksAsStudent { get; set; }
         public virtual ICollection<MarkDto> MarksAsAgent { get; set; }
     }

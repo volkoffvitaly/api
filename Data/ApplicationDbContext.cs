@@ -26,11 +26,30 @@ namespace TinkoffWatcher_Api.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<CharacteristicAnswer>()
-                .HasOne(x => x.CharacteristicQuestion)
-                .WithMany(x => x.CharacteristicAnswers)
+            builder.Entity<CharacteristicQuestion>()
+                .HasMany(x => x.CharacteristicAnswers)
+                .WithOne(x => x.CharacteristicQuestion)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(x => x.Company)
+                .WithMany(x => x.Employees)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            builder.Entity<ApplicationUser>()
+                .HasMany(x => x.MarksAsStudent)
+                .WithOne(x => x.Student)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ApplicationUser>()
+                .HasMany(x => x.MarksAsAgent)
+                .WithOne(x => x.Agent)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Mark>()
+                .HasMany(x => x.Characteristics)
+                .WithOne(x => x.Mark)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
 

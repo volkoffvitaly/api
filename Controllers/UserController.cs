@@ -220,18 +220,25 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> DeleteUserInfo(Guid id)
         {
             var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
-
+            
             if (user == default)
                 return NotFound();
-
-            using (var sqlCon = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            try
             {
-                sqlCon.Open();
+                await _userManager.DeleteAsync(user);
+                //using (var sqlCon = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                //{
+                //    sqlCon.Open();
 
-                string query = "DELETE FROM AspNetUsers WHERE Id = @Id";
-                SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
-                sqlCmd.Parameters.AddWithValue("@Id", user.Id);
-                sqlCmd.ExecuteNonQuery();
+                //    string query = "DELETE FROM AspNetUsers WHERE Id = @Id";
+                //    SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                //    sqlCmd.Parameters.AddWithValue("@Id", user.Id);
+                //    sqlCmd.ExecuteNonQuery();
+                //}
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
             return Ok();

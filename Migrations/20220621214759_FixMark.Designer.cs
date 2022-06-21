@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TinkoffWatcher_Api.Data;
 
 namespace TinkoffWatcher_Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220621214759_FixMark")]
+    partial class FixMark
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -572,7 +574,7 @@ namespace TinkoffWatcher_Api.Migrations
                     b.Property<string>("AdditionalComment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("AgentId")
+                    b.Property<Guid>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
@@ -863,8 +865,7 @@ namespace TinkoffWatcher_Api.Migrations
 
                     b.HasOne("TinkoffWatcher_Api.Models.Entities.Mark", "Mark")
                         .WithMany("Characteristics")
-                        .HasForeignKey("MarkId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("MarkId");
 
                     b.Navigation("CharacteristicQuestion");
 
@@ -943,7 +944,8 @@ namespace TinkoffWatcher_Api.Migrations
                     b.HasOne("TinkoffWatcher_Api.Models.ApplicationUser", "Agent")
                         .WithMany("MarksAsAgent")
                         .HasForeignKey("AgentId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("TinkoffWatcher_Api.Models.ApplicationUser", "Student")
                         .WithMany("MarksAsStudent")
