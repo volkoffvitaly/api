@@ -26,7 +26,7 @@ namespace TinkoffWatcher_Api
                 .ForMember(x => x.MarksAsAgent, opt => opt.MapFrom(x => x.MarksAsAgent))
                 .ForMember(x => x.Cv, opt => opt.MapFrom(x => x.Cv))
                 .ForMember(x => x.Company, opt => opt.MapFrom(x => x.Company))
-                .ForMember(x => x.CompanySubscriptions, opt => opt.MapFrom(x => x.Subscriptions.Select(y => y.CompanyId)))
+                .ForMember(x => x.CompanySubscriptions, opt => opt.MapFrom(x => x.Subscriptions.Select(y => y.Company)))
                 .ForMember(x => x.Roles, opt => opt.MapFrom(x => _userManager.GetRolesAsync(x).GetAwaiter().GetResult()));
 
             CreateMap<CompanyEditDto, Company>();
@@ -93,6 +93,7 @@ namespace TinkoffWatcher_Api
                 .ForMember(_ => _.CharacteristicAnswers, opt => opt.Ignore());
 
             CreateMap<CharacteristicQuestionDto, CharacteristicQuestion>();
+
         }
     }
 }

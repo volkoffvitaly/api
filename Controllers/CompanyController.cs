@@ -244,6 +244,10 @@ namespace TinkoffWatcher_Api.Controllers
                 {
                     user.Subscriptions = new List<SubscriberToCompany>();
                 }
+                if(user.Subscriptions.FirstOrDefault(_ => _.CompanyId == id) != null)
+                {
+                    return BadRequest("You already subscribed on this company");
+                }
                 subscription.Company = companyEntity;
                 user.Subscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
@@ -262,9 +266,8 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> UnsubscribeToCompany(Guid id)
 
         {
-            var httpContext = _httpContextAccessor.HttpContext;
-
-            var aspNetUser = await _userManager.GetUserAsync(httpContext.User);
+            var userName = User.Identity.Name;
+            var aspNetUser = await _userManager.FindByNameAsync(userName);
             if (aspNetUser == null)
             {
                 //НУ тут надо приделать нормальное сообщение о том, что юзер не ровный поцик
@@ -273,8 +276,13 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                var subscription = _context.SubscriberToCompanies
+                var subscription = await _context.SubscriberToCompanies
                     .FirstOrDefaultAsync(x => x.SubscriberId == aspNetUser.Id && x.CompanyId == id);
+                
+                if(subscription == null)
+                {
+                    return NotFound($"Company with id={id} not found");
+                }
 
                 _context.Remove(subscription);
                 await _context.SaveChangesAsync();
