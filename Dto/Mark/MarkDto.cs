@@ -11,7 +11,7 @@ namespace TinkoffWatcher_Api.Dto.Feedback
     public class MarkDto : BaseDto
     {
         public string OverallMark { get; set; }
-        public string Review { get; set; }
+        public string AdditionalComment { get; set; }
 
         public int Year { get; set; }
         public SemesterEnum Semester { get; set; }

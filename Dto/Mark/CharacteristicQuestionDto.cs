@@ -6,6 +6,7 @@ namespace TinkoffWatcher_Api.Dto.Mark
     public class CharacteristicQuestionDto : BaseDto
     {
         public string Name { get; set; }
+        public bool IsMultipleValues { get; set; }
         public virtual ICollection<CharacteristicAnswerDto> CharacteristicAnswers { get; set; }
     }
 }
