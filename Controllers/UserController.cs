@@ -378,7 +378,7 @@ namespace TinkoffWatcher_Api.Controllers
             }
             
             return Ok(await _context.Interviews
-                .Where(x => x.StudentId == id)
+                .Where(x => x.StudentId == id || x.Agents.Contains(user))
                 .Select(x => _mapper.Map<InterviewDto>(x))
                 .ToListAsync());
         }
