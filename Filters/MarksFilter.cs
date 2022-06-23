@@ -12,5 +12,6 @@ namespace TinkoffWatcher_Api.Filters
 
         public int? EndYear { get; set; }
         public SemesterEnum? Semester { get; set; }
+        public Grade? Grade { get; set; }
     }
 }

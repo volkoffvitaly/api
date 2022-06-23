@@ -55,7 +55,12 @@ namespace TinkoffWatcher_Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var markEntity = await _context.Marks.FirstOrDefaultAsync(x => x.Id == id);
+            var markEntity = await _context.Marks
+                .Include(_ => _.Characteristics)
+                    .ThenInclude(_ => _.CharacteristicQuestion)
+                .Include(_ => _.Characteristics)
+                    .ThenInclude(_ => _.CharacteristicAnswers)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (markEntity == null)
                 return NotFound();
@@ -68,7 +73,10 @@ namespace TinkoffWatcher_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Filter([FromQuery] MarksFilter filter)
         {
-            var markEntities = await _context.Marks.Where(GenerateFilterPredicate(filter)).ToListAsync();
+            var markEntities = await _context.Marks
+                .Where(GenerateFilterPredicate(filter))
+                .ToListAsync();
+
             var marksDtos = markEntities.Select(_mapper.Map<MarkDto>).ToList();
 
             return Ok(marksDtos);
@@ -83,6 +91,9 @@ namespace TinkoffWatcher_Api.Controllers
 
             if (filter.Semester.HasValue)
                 expr = expr.AndAlso(mark => mark.Semester == filter.Semester);
+
+            if (filter.Grade.HasValue)
+                expr = expr.AndAlso(mark => mark.Student.Grade == filter.Grade);
 
             if (filter.StartYear.HasValue && filter.EndYear.HasValue)
                 expr = expr.AndAlso(mark => filter.StartYear <= mark.Year && mark.Year <= filter.EndYear);

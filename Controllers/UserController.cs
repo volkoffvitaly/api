@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Feedback;
+using TinkoffWatcher_Api.Dto.Interview;
 using TinkoffWatcher_Api.Dto.User;
 using TinkoffWatcher_Api.Filters;
 using TinkoffWatcher_Api.Helpers;
@@ -226,15 +227,6 @@ namespace TinkoffWatcher_Api.Controllers
             try
             {
                 await _userManager.DeleteAsync(user);
-                //using (var sqlCon = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-                //{
-                //    sqlCon.Open();
-
-                //    string query = "DELETE FROM AspNetUsers WHERE Id = @Id";
-                //    SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
-                //    sqlCmd.Parameters.AddWithValue("@Id", user.Id);
-                //    sqlCmd.ExecuteNonQuery();
-                //}
             }
             catch (Exception ex)
             {
@@ -373,6 +365,22 @@ namespace TinkoffWatcher_Api.Controllers
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"Дневник практики ({user.FCs}, {user.Grade} курс, X семестр).docx"
             );
+        }
+
+        [HttpGet]
+        [Route("{id}/Interviews")]
+        public async Task<IActionResult> GetUserInterviews(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if(user == null)
+            {
+                return NotFound("Incorrect user id");
+            }
+            
+            return Ok(await _context.Interviews
+                .Where(x => x.StudentId == id)
+                .Select(x => _mapper.Map<InterviewDto>(x))
+                .ToListAsync());
         }
     }
 }
