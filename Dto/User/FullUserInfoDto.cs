@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using TinkoffWatcher_Api.Dto.Company;
 using TinkoffWatcher_Api.Dto.Cv;
 using TinkoffWatcher_Api.Dto.Feedback;
@@ -23,6 +24,7 @@ namespace TinkoffWatcher_Api.Dto.User
         public string MiddleName { get; set; }
         public string LastName { get; set; }
         public string FCs { get; set; }
+        public int? Group { get; set; }
         public Grade? Grade { get; set; }
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
