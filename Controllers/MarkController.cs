@@ -38,8 +38,8 @@ namespace TinkoffWatcher_Api.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public MarkController(ApplicationDbContext context, 
-            IMapper mapper, 
+        public MarkController(ApplicationDbContext context,
+            IMapper mapper,
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment webHostEnvironment)
@@ -104,7 +104,8 @@ namespace TinkoffWatcher_Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var markEntity = new Mark() {
+            var markEntity = new Mark()
+            {
                 OverallMark = model.OverallMark,
                 Semester = model.Semester,
                 AdditionalComment = model.AdditionalComment,
@@ -121,7 +122,7 @@ namespace TinkoffWatcher_Api.Controllers
             {
                 var answerEntities = new List<CharacteristicAnswer>();
 
-                foreach(var answer in characteristic.CharacteristicAnswerIds)
+                foreach (var answer in characteristic.CharacteristicAnswerIds)
                 {
                     answerEntities.Add(ansersEntities.FirstOrDefault(_ => _.Id == answer));
                 }
@@ -174,27 +175,19 @@ namespace TinkoffWatcher_Api.Controllers
                 }
 
                 var characteristicEntity = markEntity.Characteristics.FirstOrDefault(x => x.Id == characteristic.Id);
-                if(characteristicEntity == null)
+                if (characteristicEntity == null)
                 {
-                    markEntity.Characteristics.Add(new Characteristic()
-                    {
-                        Other = characteristic.Other,
-                        CharacteristicQuestionId = characteristic.CharacteristicQuestionId,
-                        CharacteristicAnswers = answerEntities
-                    });
+                    characteristicEntity = new Characteristic();
+                    markEntity.Characteristics.Add(characteristicEntity);
                 }
-                else
-                {
-                    characteristicEntity.Other = characteristic.Other;
-                    characteristicEntity.CharacteristicQuestionId = characteristic.CharacteristicQuestionId;
-                    characteristicEntity.CharacteristicAnswers = answerEntities;
-                }
-
+                characteristicEntity.Other = characteristic.Other;
+                characteristicEntity.CharacteristicQuestionId = characteristic.CharacteristicQuestionId;
+                characteristicEntity.CharacteristicAnswers = answerEntities;
             }
 
             _context.Update(markEntity);
             await _context.SaveChangesAsync();
-            
+
             return Ok(_mapper.Map<MarkDto>(markEntity));
         }
 
@@ -207,7 +200,7 @@ namespace TinkoffWatcher_Api.Controllers
 
             if (markEntity == null)
                 return NotFound();
-                        
+
             _context.Remove(markEntity);
             await _context.SaveChangesAsync();
 
@@ -233,7 +226,7 @@ namespace TinkoffWatcher_Api.Controllers
                     type.CharacteristicAnswers = type.CharacteristicAnswers
                         .Where(_ => _.IsCurrent && !_.IsDeleted).ToList();
                     var mapped = _mapper.Map<CharacteristicQuestionDto>(type);
-                    result.Add(mapped);    
+                    result.Add(mapped);
                 }
 
                 return Ok(result);
@@ -249,7 +242,7 @@ namespace TinkoffWatcher_Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CreateCharacteristicType(CharacteristicQuestionCreateDto model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -257,9 +250,9 @@ namespace TinkoffWatcher_Api.Controllers
             try
             {
                 var characteristicAnswers = new List<CharacteristicAnswer>();
-                foreach(var answer in model.CharacteristicAnswers)
+                foreach (var answer in model.CharacteristicAnswers)
                 {
-                    characteristicAnswers.Add(new CharacteristicAnswer() 
+                    characteristicAnswers.Add(new CharacteristicAnswer()
                     { Description = answer.Description });
                 }
 
@@ -297,7 +290,7 @@ namespace TinkoffWatcher_Api.Controllers
                     .Include(_ => _.CharacteristicAnswers)
                     .FirstOrDefaultAsync(_ => _.Id == id);
 
-                if(characteristicTypeEntity == null)
+                if (characteristicTypeEntity == null)
                 {
                     return BadRequest($"CharacteristicType with id={id} not found in DB");
                 }
@@ -306,7 +299,7 @@ namespace TinkoffWatcher_Api.Controllers
                 foreach (var answer in model.CharacteristicAnswers)
                 {
                     var answerEntity = characteristicTypeEntity.CharacteristicAnswers.FirstOrDefault(_ => _.Id == answer.Id);
-                    if(answerEntity == null)
+                    if (answerEntity == null)
                     {
                         return BadRequest($"Characteristic anwswer with id={answer.Id} not found in DB");
                     }
