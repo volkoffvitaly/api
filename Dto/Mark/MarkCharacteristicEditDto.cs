@@ -6,6 +6,7 @@ namespace TinkoffWatcher_Api.Dto.Mark
 {
     public class MarkCharacteristicEditDto 
     {
+        public Guid Id { get; set; }
         public string Other { get; set; }
 
         public Guid CharacteristicQuestionId { get; set; }

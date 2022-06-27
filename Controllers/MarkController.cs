@@ -56,10 +56,6 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             var markEntity = await _context.Marks
-                .Include(_ => _.Characteristics)
-                    .ThenInclude(_ => _.CharacteristicQuestion)
-                .Include(_ => _.Characteristics)
-                    .ThenInclude(_ => _.CharacteristicAnswers)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (markEntity == null)
@@ -159,7 +155,12 @@ namespace TinkoffWatcher_Api.Controllers
             if (markEntity == null)
                 return NotFound();
 
-            markEntity = _mapper.Map(model, markEntity);
+            //Не используется маппер потому, что могут в модели прийти не 
+            //все характеристики
+            markEntity.OverallMark = model.OverallMark;
+            markEntity.AdditionalComment = model.AdditionalComment;
+            markEntity.Semester = model.Semester;
+            markEntity.Year = model.Year;
 
             var ansersEntities = await _context.CharacteristicAnswers.ToListAsync();
 
@@ -172,18 +173,29 @@ namespace TinkoffWatcher_Api.Controllers
                     answerEntities.Add(ansersEntities.FirstOrDefault(_ => _.Id == answer));
                 }
 
-                markEntity.Characteristics.Add(new Characteristic()
+                var characteristicEntity = markEntity.Characteristics.FirstOrDefault(x => x.Id == characteristic.Id);
+                if(characteristicEntity == null)
                 {
-                    Other = characteristic.Other,
-                    CharacteristicQuestionId = characteristic.CharacteristicQuestionId,
-                    CharacteristicAnswers = answerEntities
-                });
+                    markEntity.Characteristics.Add(new Characteristic()
+                    {
+                        Other = characteristic.Other,
+                        CharacteristicQuestionId = characteristic.CharacteristicQuestionId,
+                        CharacteristicAnswers = answerEntities
+                    });
+                }
+                else
+                {
+                    characteristicEntity.Other = characteristic.Other;
+                    characteristicEntity.CharacteristicQuestionId = characteristic.CharacteristicQuestionId;
+                    characteristicEntity.CharacteristicAnswers = answerEntities;
+                }
+
             }
 
             _context.Update(markEntity);
             await _context.SaveChangesAsync();
-
-            return Ok(markEntity);
+            
+            return Ok(_mapper.Map<MarkDto>(markEntity));
         }
 
         [HttpDelete]
