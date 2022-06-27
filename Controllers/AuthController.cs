@@ -113,7 +113,7 @@ namespace TinkoffWatcher_Api.Controllers
                 LastName = model.LastName,
                 BirthDate = model.DateOfBirth,
                 Gender = model.Gender,
-                Grade = model.Grade ?? Grade.BachelorSecond,
+                Group = model.Group,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -197,7 +197,7 @@ namespace TinkoffWatcher_Api.Controllers
                 LastName = model.LastName,
                 BirthDate = model.DateOfBirth,
                 Gender = model.Gender,
-                Grade = model.Grade,
+                Group = model.Group,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

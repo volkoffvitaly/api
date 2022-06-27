@@ -12,7 +12,30 @@ namespace TinkoffWatcher_Api.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
-        public Grade? Grade { get; set; }
+        public int? Group { get; set; }
+
+        [NotMapped]
+        public Grade? Grade
+        {
+            get
+            {
+                if (Group != null)
+                {
+                    var groupYear = Group.Value / 1000 % 10 * 10 + Group.Value / 100 % 10;
+                    var currentYear = DateTime.Now.Year % 100;
+
+                    if (new DateTime(2000 + currentYear, 8, 31) < DateTime.Now)
+                        currentYear++;
+
+                    var difference = currentYear - groupYear;
+                    try{ return (Grade)difference; }
+                    catch { return null; }
+                }
+
+                return null;
+            }
+        }
+
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
         public string Discord { get; set; }

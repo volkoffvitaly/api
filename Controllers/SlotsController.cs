@@ -48,7 +48,7 @@ namespace TinkoffWatcher_Api.Controllers
             if (slotEntity == null)
                 return NotFound();
 
-            var slotDto = _mapper.Map<SlotDto>(slotEntity);
+            var slotDto = _mapper.Map<DiarySettingsDto>(slotEntity);
 
             return Ok(slotDto);
         }
@@ -58,7 +58,7 @@ namespace TinkoffWatcher_Api.Controllers
         {
             var filterPredicate = GenerateFilterPredicate(filter);
             var slotEntities = _context.Slots.Where(filterPredicate).OrderBy(x => x.DateTime);
-            var slotsDtos = _mapper.ProjectTo<SlotDto>(slotEntities);
+            var slotsDtos = _mapper.ProjectTo<DiarySettingsDto>(slotEntities);
 
             return Ok(slotsDtos);
         }
@@ -94,7 +94,7 @@ namespace TinkoffWatcher_Api.Controllers
             _context.Add(slotEntity);
             await _context.SaveChangesAsync();
 
-            return Ok(_mapper.Map<SlotDto>(slotEntity));
+            return Ok(_mapper.Map<DiarySettingsDto>(slotEntity));
         }
 
         [HttpPut]
@@ -116,7 +116,7 @@ namespace TinkoffWatcher_Api.Controllers
             _context.Update(slotEntity);
             await _context.SaveChangesAsync();
 
-            return Ok(_mapper.Map<SlotDto>(slotEntity));
+            return Ok(_mapper.Map<DiarySettingsDto>(slotEntity));
         }
 
         [HttpDelete]
