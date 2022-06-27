@@ -376,11 +376,11 @@ namespace TinkoffWatcher_Api.Controllers
             {
                 return NotFound("Incorrect user id");
             }
-            
-            return Ok(await _context.Interviews
+            var interviews = await _context.Interviews
                 .Where(x => x.StudentId == id || x.Agents.Contains(user))
-                .Select(x => _mapper.Map<InterviewDto>(x))
-                .ToListAsync());
+                .ToListAsync();
+
+            return Ok(interviews.Select(x => _mapper.Map<InterviewDto>(x)));
         }
     }
 }

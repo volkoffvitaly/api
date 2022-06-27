@@ -35,7 +35,7 @@ namespace TinkoffWatcher_Api.Data
                 .HasOne(x => x.Company)
                 .WithMany(x => x.Employees)
                 .OnDelete(DeleteBehavior.NoAction);
-
+    
             builder.Entity<ApplicationUser>()
                 .HasMany(x => x.MarksAsStudent)
                 .WithOne(x => x.Student)
@@ -50,6 +50,11 @@ namespace TinkoffWatcher_Api.Data
                 .HasMany(x => x.Characteristics)
                 .WithOne(x => x.Mark)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(x => x.Company)
+                .WithMany(x => x.Employees)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
 

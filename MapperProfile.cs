@@ -37,13 +37,11 @@ namespace TinkoffWatcher_Api
             CreateMap<Feedback, FeedbackDto>();
 
             CreateMap<InterviewCreateOrEditDto, Interview>();
-            CreateMap<Interview, InterviewDto>();
+            CreateMap<Interview, InterviewDto>()
+                .ForMember(x => x.Feedbacks, opt => opt.MapFrom(x => x.Feedbacks));
 
             CreateMap<VacancyEditDto, Vacancy>();
             CreateMap<Vacancy, VacancyDto>();
-
-            CreateMap<MarkEditDto, Mark>();
-            CreateMap<Mark, MarkDto>();
 
             CreateMap<SlotEditDto, Slot>();
             CreateMap<Slot, SlotDto>();
@@ -91,6 +89,10 @@ namespace TinkoffWatcher_Api
 
             CreateMap<MarkCharacteristicEditDto, Characteristic>()
                 .ForMember(_ => _.CharacteristicAnswers, opt => opt.Ignore());
+
+            CreateMap<MarkEditDto, Mark>();
+            CreateMap<Mark, MarkDto>()
+                .ForMember(x => x.Characteristics, opt => opt.MapFrom(x => x.Characteristics));
 
             CreateMap<CharacteristicQuestionDto, CharacteristicQuestion>();
 

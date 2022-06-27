@@ -32,7 +32,7 @@ namespace TinkoffWatcher_Api.Controllers
         public async Task<IActionResult> Get()
         {
             var interviewEntities = _context.Interviews.Include(_ => _.Student);
-            var interviewDtos = _mapper.ProjectTo<InterviewDto>(interviewEntities);
+            var interviewDtos = await _mapper.ProjectTo<InterviewDto>(interviewEntities).ToListAsync();
 
             return Ok(interviewDtos);
         }
@@ -124,7 +124,8 @@ namespace TinkoffWatcher_Api.Controllers
 
             try
             {
-                _context.Remove(interviewEntity);
+                _context.Feedbacks.RemoveRange(interviewEntity.Feedbacks);
+                _context.Interviews.Remove(interviewEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
