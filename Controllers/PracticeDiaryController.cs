@@ -10,7 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using TinkoffWatcher_Api.Data;
 using TinkoffWatcher_Api.Dto.Interview;
+using TinkoffWatcher_Api.Dto.Slot;
 using TinkoffWatcher_Api.Dto.Vacancy;
+using TinkoffWatcher_Api.Enums;
 using TinkoffWatcher_Api.Models;
 using TinkoffWatcher_Api.Models.Entities;
 
@@ -38,41 +40,49 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(Grade? grade)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var orderEntity = _context.Properties.FirstOrDefault(x => x.Name == _configuration["Properties:OrderKeywords"]);
-            
-            if (orderEntity == null)
+            var diarySettngsEntities = _context.DiarySettings.ToList();
+
+            if (diarySettngsEntities == null || !diarySettngsEntities.Any())
                 return Ok();
-            
-            return Ok(orderEntity.Value);
+
+            var diarySettngsDtos = _mapper.Map<List<DiarySettingsDto>>(diarySettngsEntities);
+
+            if (grade != null)
+                return Ok(diarySettngsDtos.FirstOrDefault(x => x.Grade == grade));
+
+            return Ok(diarySettngsDtos);
         }
 
         [HttpPost]
         [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.SchoolAgent)]
-        public async Task<IActionResult> Create(string orderNumber)
+        public async Task<IActionResult> Create(DiarySettingsEditDto diarySettingsEditDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var orderEntity = _context.Properties.FirstOrDefault(x => x.Name == _configuration["Properties:OrderKeywords"]);
-            if (orderEntity == default)
+            var diarySettngsEntity = _context.DiarySettings.FirstOrDefault(x => x.Grade == diarySettingsEditDto.Grade);
+
+            if (diarySettngsEntity == null)
             {
-                orderEntity = new Property()
-                {
-                    Name = _configuration["Properties:OrderKeywords"],
-                };
+                diarySettngsEntity = _mapper.Map<DiarySettings>(diarySettingsEditDto);
             }
-
-            orderEntity.Value = orderNumber;
-
-            _context.Properties.Update(orderEntity);
+            else
+            {
+                diarySettngsEntity = _mapper.Map(diarySettingsEditDto, diarySettngsEntity);
+            }
+            _context.DiarySettings.Update(diarySettngsEntity);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            diarySettngsEntity = _context.DiarySettings.FirstOrDefault(x => x.Grade == diarySettingsEditDto.Grade);
+
+            var diarySettngsDto = _mapper.Map<DiarySettingsDto>(diarySettngsEntity);
+
+            return Ok(diarySettngsDto);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace TinkoffWatcher_Api
             CreateMap<Vacancy, VacancyDto>();
 
             CreateMap<SlotEditDto, Slot>();
-            CreateMap<Slot, SlotDto>();
+            CreateMap<Slot, DiarySettingsDto>();
 
             CreateMap<WorkExperience, WorkExperienceDto>();
             CreateMap<WorkExperienceDto, WorkExperience>();
@@ -93,6 +93,9 @@ namespace TinkoffWatcher_Api
             CreateMap<MarkEditDto, Mark>();
             CreateMap<Mark, MarkDto>()
                 .ForMember(x => x.Characteristics, opt => opt.MapFrom(x => x.Characteristics));
+
+            CreateMap<DiarySettingsEditDto, DiarySettings>();
+            CreateMap<DiarySettings, DiarySettingsDto>();
 
             CreateMap<CharacteristicQuestionDto, CharacteristicQuestion>();
 
