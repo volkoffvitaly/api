@@ -406,12 +406,25 @@ namespace TinkoffWatcher_Api.Controllers
 
             foreach (var worksheet in worksheets)
             {
-                var grade = worksheet.Name[0];
-                var students = _context.Users
-                    .Where(x => x.Grade == (Grade)grade)
+                var grade = worksheet.Name[0].ToString();
+                var groupToSelect = (9722 - int.Parse(grade)) * 100 + 99;
+                var students = await _context.Users
+                    .AsNoTracking()
+                    .Include(x => x.MarksAsStudent)
+                        .ThenInclude(x => x.Agent)
+                    .Include(x => x.Company)
+                    .Include(x => x.MarksAsStudent)
+                        .ThenInclude(x => x.Characteristics)
+                            .ThenInclude(x => x.CharacteristicQuestion)
+                    .Include(x => x.MarksAsStudent)
+                        .ThenInclude(x => x.Characteristics)
+                            .ThenInclude(x => x.CharacteristicAnswers)
+                    .Where(x => x.Group < groupToSelect)
+                    .OrderByDescending(x => x.Group)
                     .OrderBy(x => x.LastName)
                     .ThenBy(x => x.FirstName)
-                    .ThenBy(x => x.MiddleName);
+                    .ThenBy(x => x.MiddleName)
+                    .ToListAsync();
 
                 var rowPointer = worksheet.FirstRow();
 
@@ -433,46 +446,35 @@ namespace TinkoffWatcher_Api.Controllers
                         rowPointer.Cell(2).SetValue("Оценка");
                         rowPointer.RowBelow().Cell(2).SetValue(mark.OverallMark);
                         rowPointer.Cell(3).SetValue("Компания");
-                        rowPointer.RowBelow().Cell(3).SetValue(student.Company.Name);
+                        rowPointer.RowBelow().Cell(3).SetValue(student.Company?.Name ?? "Не проходит стажировку в компании партнере");
                         rowPointer.Cell(4).SetValue("Выставил");
-                        rowPointer.RowBelow().Cell(4).SetValue(mark.Agent.FCs);
+                        rowPointer.RowBelow().Cell(4).SetValue(mark.Agent?.FCs ?? "Выставитель оценки не указан");
                         rowPointer.Cell(5).SetValue("Кем приходится студенту");
-                        rowPointer.RowBelow().Cell(5).SetValue(mark.Agent.Post);
+                        rowPointer.RowBelow().Cell(5).SetValue(mark.Agent?.Post ?? "Выставитель оценки не указан");
                         rowPointer.Cell(6).SetValue("Комментарий");
                         rowPointer.RowBelow().Cell(6).SetValue(mark.AdditionalComment);
 
                         var cellPointer = 7;
-
+                        var offset = 2;
                         foreach (var characteristic in mark.Characteristics)
                         {
-                            var offset = 0;
+                            foreach (var answer in characteristic.CharacteristicAnswers)
+                            {
+                                worksheet.Range(worksheet.Cell(rowPointer.RowNumber(), cellPointer), worksheet.Cell(rowPointer.RowNumber(), cellPointer + 1)).Merge();
 
-                            //if (characteristic.CharacteristicValues is CharacteristicBoolValue boolValue)
-                            //{
-                            //    rowPointer.RowBelow().Cell(cellPointer).SetValue(boolValue.BoolValue);
-
-                            //    offset = 1;
-                            //}
-
-                            //if (characteristic.CharacteristicValues.FirstOrDefault() is CharacteristicIntValue intValue)
-                            //{
-                            //    worksheet.Range(worksheet.Cell(rowPointer.RowNumber(), cellPointer), worksheet.Cell(rowPointer.RowNumber(), cellPointer + 1)).Merge();
-
-                            //    rowPointer.RowBelow().Cell(cellPointer).SetValue(intValue.IntValue);
-                            //    rowPointer.RowBelow().Cell(cellPointer + 1).SetValue(intValue.Description);
-
-                            //    if (!string.IsNullOrWhiteSpace(characteristic.Other))
-                            //    {
-                            //        rowPointer.RowBelow().Cell(cellPointer).SetValue("[Другое]");
-                            //        rowPointer.RowBelow().Cell(cellPointer + 1).SetValue(characteristic.Other);
-                            //    }
-
-                            //    offset = 2;
-                            //}
-
-                            rowPointer.Cell(cellPointer).SetValue(characteristic.CharacteristicQuestion.Name);
-
-                            cellPointer += offset;
+                                rowPointer.RowBelow().Cell(cellPointer).SetValue(answer.Description);
+                                
+                                rowPointer.Cell(cellPointer).SetValue(characteristic.CharacteristicQuestion.Name);
+                                cellPointer += offset;
+                            }
+                            if (!string.IsNullOrWhiteSpace(characteristic.Other))
+                            {
+                                //Если характеристики не множество
+                                //тогда предыдущее поле затирается строкой Другое(оно одно должно быть)
+                                var otherPointer = !characteristic.CharacteristicQuestion.IsMultipleValues ? cellPointer - offset : cellPointer;
+                                rowPointer.RowBelow().Cell(otherPointer).SetValue("[Другое]");
+                                rowPointer.RowBelow().Cell(otherPointer + 1).SetValue(characteristic.Other);
+                            }
                         }
 
                         rowPointer = rowPointer.RowBelow(3);
