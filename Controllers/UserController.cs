@@ -349,12 +349,12 @@ namespace TinkoffWatcher_Api.Controllers
 
             var doc = DocX.Load(copyFilePath);
 
-            var orderEntity = _context.Properties.FirstOrDefault(x => x.Name == _configuration["Properties:OrderKeywords"]);
+            var orderEntity = _context.DiarySettings.FirstOrDefault(x => x.Order == _configuration["PracticeDiary:OrderKeywords"]);
 
             doc.ReplaceText(_configuration["PracticeDiary:StudentFCsKeywords"], user.FCs);
             doc.ReplaceText(_configuration["PracticeDiary:GradeKeywords"], user.Grade + " курс");
             doc.ReplaceText(_configuration["PracticeDiary:CompanyFullNameKeywords"], user.Company.Name);
-            doc.ReplaceText(_configuration["PracticeDiary:OrderKeywords"], orderEntity?.Value ?? "******");
+            doc.ReplaceText(_configuration["PracticeDiary:OrderKeywords"], orderEntity?.Order ?? "******");
             //doc.ReplaceText(_configuration["PracticeDiary:ManagerFCsKeywords"], user.Company.Employees.Where(x => x.) ?? "******"); // обсудить
             doc.Save();
 
