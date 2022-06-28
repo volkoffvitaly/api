@@ -86,7 +86,7 @@ namespace TinkoffWatcher_Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent)]
+        [Authorize(Roles = ApplicationRoles.Administrators + "," + ApplicationRoles.CompanyAgent + "," + ApplicationRoles.Student)]
         public async Task<IActionResult> Put(Guid id, [FromBody] InterviewCreateOrEditDto model)
         {
             if (!ModelState.IsValid)
